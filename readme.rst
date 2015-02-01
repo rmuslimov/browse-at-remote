@@ -3,7 +3,7 @@ browse-at-remote.el
 
 I'm tired to walk through Github/Bitbucket -> find required file, select particular branch and stand on required line. This package provides simple function may be called from emacs buffer, and opens target page.
 
-Works for Github and Bitbucket hosted repositories only.
+Works only for git-repos and Github/Bitbucket hosted repositories.
 
 p.s. This is openatgithub.el project reincornation.
 
@@ -41,3 +41,8 @@ Usage:
 
    .. image:: http://i.imgur.com/XuzLhcR.png
       alt: screenshot page tree at bibucket
+
+TODO:
+-----
+
+- Add mercurial support
