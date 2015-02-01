@@ -26,7 +26,7 @@ Usage:
 
      M-x browse-at-remote
 
-   .. image:: http://i.imgur.com/RvKPgy8.png
+   .. image:: http://i.imgur.com/rmAky8e.png
 
    or just call ``C-c g g`` if you've already added binding before. You can use
    this command in dired buffers too.
@@ -34,7 +34,7 @@ Usage:
 2. Target page at github/bitbucket will be opened using your default browser:
 
 
-   .. image:: http://i.imgur.com/ZPqK3nw.png
+   .. image:: http://i.imgur.com/wBW9Gov.png
       alt: screenshot of page at github
 
    or same here is folder view at bitbucket:
