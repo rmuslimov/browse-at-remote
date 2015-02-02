@@ -39,12 +39,6 @@
    2
    (s-match "https://\\([a-z]+@\\)?\\([a-z\.]+\\)/\\([a-z\-]+/[a-z\.\-]+\\).git" origin)))
 
-(defun get-current-revision-hash ()
-  "Eval current working revision"
-  (with-temp-buffer
-    (vc-git--call t "config" "--get" "remote.origin.url")
-    (buffer-string)))
-
 (defun get-url-for-origin (origin)
   "Extract browseable repo url from origin definition"
   (let* ((parsed
