@@ -1,7 +1,7 @@
 EMACS ?= emacs
 CASK ?= cask
 
-install:
+Install:
 	${CASK} install
 
 .PHONY: test

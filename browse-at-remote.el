@@ -29,33 +29,37 @@
 
 ;;; Code:
 
-(defun parse-git-prefixed-origin (origin)
+(require 'f)
+(require 's)
+(require 'vc)
+
+(defun browse-at-remote/parse-git-prefixed (origin)
   "Extract domain and slug for origin like git@..."
   (cdr (s-match "git@\\([a-z\.]+\\):\\([a-z\.\-]+/[a-z\.\-]+\\).git" origin)))
 
-(defun parse-https-prefixed-origin (origin)
+(defun browse-at-remote/parse-https-prefixed (origin)
   "Extract domain and slug from origin like https://...."
   (nthcdr
    2
    (s-match "https://\\([a-z]+@\\)?\\([a-z\.]+\\)/\\([a-z\-]+/[a-z\.\-]+\\).git" origin)))
 
-(defun get-url-for-origin (origin)
+(defun browse-at-remote/get-url-from-origin (origin)
   "Extract browseable repo url from origin definition"
   (let* ((parsed
           (cond
-           ((s-starts-with? "git" origin) (parse-git-prefixed-origin origin))
-           ((s-starts-with? "https" origin) (parse-https-prefixed-origin origin))))
+           ((s-starts-with? "git" origin) (browse-at-remote/parse-git-prefixed origin))
+           ((s-starts-with? "https" origin) (browse-at-remote/parse-https-prefixed origin))))
          (domain (car parsed))
          (slug (nth 1 parsed)))
     (cons domain (format "https://%s/%s" domain slug))))
 
-(defun vc-git-get-origin()
+(defun browse-at-remote/get-origin ()
   "Get origin from current repo"
   (with-temp-buffer
     (vc-git--call t "config" "--get" "remote.origin.url")
     (s-replace "\n" "" (buffer-string))))
 
-(defun format-as-github (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/format-as-github (repo-url location filename &optional linestart lineend)
   "URL formatted for github"
   (cond
    ((and linestart lineend)
@@ -63,23 +67,23 @@
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
-(defun format-as-bitbucket (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/format-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"
   (cond
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
 (defun browse-at-remote-at-place (filename &optional start end)
-  (interactive)
+  (message filename)
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
-         (target-repo (get-url-for-origin (vc-git-get-origin)))
+         (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
          (domain (car target-repo))
          (repo-url (cdr target-repo))
          (url-format
           (pcase domain
-            (`"bitbucket.org" `format-as-bitbucket)
-            (`"github.com" `format-as-github))))
+            (`"bitbucket.org" `browse-at-remote/format-as-bitbucket)
+            (`"github.com" `browse-at-remote/format-as-github))))
 
     (browse-url (funcall url-format repo-url branch relname
                          (if start (line-number-at-pos start))
