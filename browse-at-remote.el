@@ -29,13 +29,15 @@
 
 ;;; Code:
 
-(defconst re-git-origin
-  "git@\\([a-z\.]+\\):\\([a-z\-]+/[a-z\-]+\\).git"
-  "git prefix based origin")
+(defun parse-git-prefixed-origin (origin)
+  "Extract domain and slug for origin like git@..."
+  (cdr (s-match "git@\\([a-z\.]+\\):\\([a-z\.\-]+/[a-z\.\-]+\\).git" origin)))
 
-(defconst re-https-origin
-  "https://[a-z]*@\\([a-z\.]+\\)/\\([a-z\-]+/[a-z\-]+\\).git"
-  "https based prefix origin")
+(defun parse-https-prefixed-origin (origin)
+  "Extract domain and slug from origin like https://...."
+  (nthcdr
+   2
+   (s-match "https://\\([a-z]+@\\)?\\([a-z\.]+\\)/\\([a-z\-]+/[a-z\.\-]+\\).git" origin)))
 
 (defun get-current-revision-hash ()
   "Eval current working revision"
@@ -45,13 +47,12 @@
 
 (defun get-url-for-origin (origin)
   "Extract browseable repo url from origin definition"
-  (let* ((re-pattern
+  (let* ((parsed
           (cond
-           ((s-starts-with? "git" origin) re-git-origin)
-           ((s-starts-with? "https" origin) re-https-origin)))
-         (parsed (s-match re-pattern origin))
-         (domain (nth 1 parsed))
-         (slug (nth 2 parsed)))
+           ((s-starts-with? "git" origin) (parse-git-prefixed-origin origin))
+           ((s-starts-with? "https" origin) (parse-https-prefixed-origin origin))))
+         (domain (car parsed))
+         (slug (nth 1 parsed)))
     (cons domain (format "https://%s/%s" domain slug))))
 
 (defun vc-git-get-origin()
