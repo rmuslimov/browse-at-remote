@@ -1,4 +1,4 @@
-;;; browse-at-remote.el --- Open file at github/bitbucket.
+;;; browse-at-remote.el --- Open page at github/bitbucket from emacs buffers
 
 ;; Copyright © 2015 Rustem Muslimov
 ;;
