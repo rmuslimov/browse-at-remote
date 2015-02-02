@@ -74,7 +74,6 @@
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
 (defun browse-at-remote-at-place (filename &optional start end)
-  (message filename)
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
@@ -90,6 +89,7 @@
                          (if end (line-number-at-pos end)))
                 )))
 
+;;;###autoload
 (defun browse-at-remote()
   "Main function for interactive calls"
   (interactive)
