@@ -73,6 +73,11 @@
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
+(defun browse-at-remote/view-particular-commit-at-github (commithash)
+  "Open commit page at github"
+  (let ((val (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))))
+    (browse-url (format "%s/commit/%s" val commithash))))
+
 (defun browse-at-remote-at-place (filename &optional start end)
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
@@ -93,13 +98,25 @@
 (defun browse-at-remote()
   "Main function for interactive calls"
   (interactive)
-  (if (eq major-mode 'dired-mode) (browse-at-remote-at-place (dired-current-directory))
-    (if (not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point))
-      (let ((point-begin (min (region-beginning) (region-end)))
-            (point-end (max (region-beginning) (region-end))))
-        (browse-at-remote-at-place
-         (buffer-file-name) point-begin
-         (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))
+  (cond
+   ;; dired-mode
+   ((eq major-mode 'dired-mode) (browse-at-remote-at-place (dired-current-directory)))
+
+   ;; magit-log-mode
+   ((eq major-mode 'magit-log-mode)
+    (browse-at-remote/view-particular-commit-at-github
+     (save-excursion
+       (beginning-of-line)
+       (search-forward " ")
+       (buffer-substring-no-properties (line-beginning-position) (- (point) 1)))))
+
+   ;; now assume that we're inside of file-attached buffer
+   ((not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point)))
+   ((let ((point-begin (min (region-beginning) (region-end)))
+          (point-end (max (region-beginning) (region-end))))
+      (browse-at-remote-at-place
+       (buffer-file-name) point-begin
+       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))
       ))))
 
 (provide 'browse-at-remote)
