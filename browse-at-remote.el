@@ -75,8 +75,12 @@
 
 (defun browse-at-remote/view-particular-commit-at-github (commithash)
   "Open commit page at github"
-  (let ((val (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))))
-    (browse-url (format "%s/commit/%s" val commithash))))
+  (let ((repo (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))))
+    (browse-url
+     (cond
+      ((s-prefix? "https://github.com" repo) (format "%s/commit/%s" repo commithash))
+      ((s-prefix? "https://bitbucket.org" repo) (format "%s/commits/%s" repo commithash)))
+     )))
 
 (defun browse-at-remote-at-place (filename &optional start end)
   (let* ((branch (vc-git-working-revision filename))
