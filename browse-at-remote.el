@@ -4,7 +4,8 @@
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.3.0
-;; Keywords:   github, bitbucket
+;; Keywords:   github, bitbucket, convenience
+;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +32,6 @@
 
 (require 'f)
 (require 's)
-(require 'vc)
 
 (defun browse-at-remote/parse-git-prefixed (origin)
   "Extract domain and slug for origin like git@..."
