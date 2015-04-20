@@ -107,7 +107,7 @@
    ((eq major-mode 'dired-mode) (browse-at-remote-at-place (dired-current-directory)))
 
    ;; magit-log-mode
-   ((eq major-mode 'magit-log-mode)
+   ((or (eq major-mode 'magit-log-mode) (eq major-mode 'vc-annotate-mode))
     (browse-at-remote/view-particular-commit-at-github
      (save-excursion
        (beginning-of-line)
