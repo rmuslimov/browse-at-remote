@@ -114,6 +114,16 @@
        (search-forward " ")
        (buffer-substring-no-properties (line-beginning-position) (- (point) 1)))))
 
+   ;; magit-commit-mode
+   ((eq major-mode 'magit-commit-mode)
+    (let ((first-space-in-buffer
+           (save-excursion
+             (beginning-of-buffer)
+             (search-forward " "))))
+      (browse-at-remote/view-particular-commit-at-github
+       (buffer-substring-no-properties 1 first-space-in-buffer))
+    ))
+
    ;; now assume that we're inside of file-attached buffer
    ((not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point)))
    ((let ((point-begin (min (region-beginning) (region-end)))
