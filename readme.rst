@@ -52,6 +52,14 @@ Usage:
    .. image:: http://i.imgur.com/XuzLhcR.png
       alt: screenshot page tree at bibucket
 
+3. Opening github commit's page at *magit-commit-mode*, *magit-log-mode*:
+
+   .. image:: http://i.imgur.com/06ZusE3.png
+      alt: screenshot of *magit-commit-mode*
+
+   .. image:: http://i.imgur.com/NzlIHYr.png
+      alt: screenshot of *magit-log-mode*
+
 TODO:
 -----
 
