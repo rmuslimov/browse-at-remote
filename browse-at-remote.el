@@ -90,13 +90,16 @@
          (repo-url (cdr target-repo))
          (url-format
           (pcase domain
-            (`"bitbucket.org" `browse-at-remote/format-as-bitbucket)
-            (`"github.com" `browse-at-remote/format-as-github))))
+            (`"bitbucket.org" 'browse-at-remote/format-as-bitbucket)
+            (`"github.com" 'browse-at-remote/format-as-github)
+            )))
 
-    (browse-url (funcall url-format repo-url branch relname
-                         (if start (line-number-at-pos start))
-                         (if end (line-number-at-pos end)))
-                )))
+    (if url-format
+        (browse-url (funcall url-format repo-url branch relname
+                             (if start (line-number-at-pos start))
+                             (if end (line-number-at-pos end))))
+      (message (format "Origin repo parsing failed: %s" (browse-at-remote/get-origin))))
+    ))
 
 ;;;###autoload
 (defun browse-at-remote()
