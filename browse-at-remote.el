@@ -1,9 +1,10 @@
+;; -*- lexical-binding:t -*-
 ;;; browse-at-remote.el --- Open page at github/bitbucket from emacs buffers
 
 ;; Copyright © 2015 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.3.0
+;; Version:    0.4.0
 ;; Keywords:   github, bitbucket, convenience
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
 
@@ -73,16 +74,19 @@
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
-(defun browse-at-remote/view-particular-commit-at-github (commithash)
+(defun browse-at-remote/view-particular-commit-at-github (commithash &optional to_clipboard)
   "Open commit page at github"
-  (let ((repo (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))))
-    (browse-url
+  (let (
+        (repo (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin))))
+        (action-func (if to_clipboard 'kill-new 'browse-url))
+        )
+    (funcall action-func
      (cond
       ((s-prefix? "https://github.com" repo) (format "%s/commit/%s" repo commithash))
       ((s-prefix? "https://bitbucket.org" repo) (format "%s/commits/%s" repo commithash)))
      )))
 
-(defun browse-at-remote-at-place (filename &optional start end)
+(defun browse-at-remote-at-place (filename &optional start end to_clipboard)
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
@@ -92,17 +96,19 @@
           (pcase domain
             (`"bitbucket.org" 'browse-at-remote/format-as-bitbucket)
             (`"github.com" 'browse-at-remote/format-as-github)
-            )))
+            ))
+         (action-func (if to_clipboard 'kill-new 'browse-url))
+         )
 
     (if url-format
-        (browse-url (funcall url-format repo-url branch relname
-                             (if start (line-number-at-pos start))
-                             (if end (line-number-at-pos end))))
+        (funcall action-func (funcall url-format repo-url branch relname
+                                       (if start (line-number-at-pos start))
+                                       (if end (line-number-at-pos end))))
       (message (format "Origin repo parsing failed: %s" (browse-at-remote/get-origin))))
     ))
 
 ;;;###autoload
-(defun browse-at-remote()
+(defun browse-at-remote(&optional to_clipboard)
   "Main function for interactive calls"
   (interactive)
   (cond
@@ -115,7 +121,7 @@
      (save-excursion
        (beginning-of-line)
        (search-forward " ")
-       (buffer-substring-no-properties (line-beginning-position) (- (point) 1)))))
+       (buffer-substring-no-properties (line-beginning-position) (- (point) 1))) to_clipboard))
 
    ;; magit-commit-mode
    ((eq major-mode 'magit-commit-mode)
@@ -125,17 +131,23 @@
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
              (commithash (car (s-split " " first-line)))
            )
-        (browse-at-remote/view-particular-commit-at-github commithash))
+        (browse-at-remote/view-particular-commit-at-github commithash to_clipboard))
       ))
 
    ;; now assume that we're inside of file-attached buffer
-   ((not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point)))
+   ((not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point) nil to_clipboard))
    ((let ((point-begin (min (region-beginning) (region-end)))
           (point-end (max (region-beginning) (region-end))))
       (browse-at-remote-at-place
        (buffer-file-name) point-begin
-       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))
+       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end) to_clipboard)
       ))))
+
+;;;###autoload
+(defun browse-at-remote/to-clipboard ()
+  "Helper method to use clipboard instead browse-url function"
+  (interactive)
+  (browse-at-remote t))
 
 (provide 'browse-at-remote)
 

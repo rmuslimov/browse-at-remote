@@ -60,6 +60,14 @@ Usage:
    .. image:: http://i.imgur.com/NzlIHYr.png
       alt: screenshot of *magit-log-mode*
 
+Changelog:
+--------
+
+0.4.0
+*****
+
+- function `browse-at-remote/to-clipboard` were added
+
 TODO:
 -----
 
