@@ -33,4 +33,6 @@
 				 (cons `"github.com" `"https://github.com/rmuslimov/browse-at-remote")))
   (should (equal (browse-at-remote/get-url-from-origin "https://github.com/rmus2limov/brows2e-at-remote")
 				 (cons `"github.com" `"https://github.com/rmus2limov/brows2e-at-remote")))
+  (should (equal (browse-at-remote/get-url-from-origin "git@github.com:someplace/without-ending")
+                                 (cons `"github.com" `"https://github.com/someplace/without-ending")))
   )
