@@ -36,7 +36,7 @@
 
 (defun browse-at-remote/parse-git-prefixed (origin)
   "Extract domain and slug for origin like git@..."
-  (cdr (s-match "git@\\([a-z\.]+\\):\\([a-z\.\-]+/[a-z0-9\.\-]+\\).git" origin)))
+  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z.-]+/[a-z0-9.-]+?\\)\\(?:\.git\\)?$" origin)))
 
 (defun browse-at-remote/parse-https-prefixed (origin)
   "Extract domain and slug from origin like https://...."
