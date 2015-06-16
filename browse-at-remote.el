@@ -79,11 +79,12 @@
   (let (
         (repo (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin))))
         (action-func (if to_clipboard 'kill-new 'browse-url))
+        (clear-commithash (s-chop-prefixes '("^") commithash))
         )
     (funcall action-func
      (cond
-      ((s-prefix? "https://github.com" repo) (format "%s/commit/%s" repo commithash))
-      ((s-prefix? "https://bitbucket.org" repo) (format "%s/commits/%s" repo commithash)))
+      ((s-prefix? "https://github.com" repo) (format "%s/commit/%s" repo clear-commithash))
+      ((s-prefix? "https://bitbucket.org" repo) (format "%s/commits/%s" repo clear-commithash)))
      )))
 
 (defun browse-at-remote-at-place (filename &optional start end to_clipboard)
@@ -130,7 +131,7 @@
       (let* ((first-line
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
              (commithash (car (s-split " " first-line)))
-           )
+             )
         (browse-at-remote/view-particular-commit-at-github commithash to_clipboard))
       ))
 

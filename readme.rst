@@ -60,6 +60,12 @@ Usage:
    .. image:: http://i.imgur.com/NzlIHYr.png
       alt: screenshot of *magit-log-mode*
 
+4. Open last commit which added target line:
+
+   - Press `C-x v g` to call standard vc-annotate
+   - Call `browse-at-remote` on target line
+
+
 Changelog:
 --------
 
