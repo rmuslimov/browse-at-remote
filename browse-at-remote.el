@@ -36,11 +36,11 @@
 
 (defun browse-at-remote/parse-git-prefixed (origin)
   "Extract domain and slug for origin like git@..."
-  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9.-]+/[a-z0-9.-]+?\\)\\(?:\.git\\)?$" origin)))
+  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9.-_]+/[a-z0-9.-_]+?\\)\\(?:\.git\\)?$" origin)))
 
 (defun browse-at-remote/parse-https-prefixed (origin)
   "Extract domain and slug from origin like https://...."
-  (let ((matches (s-match "https://\\(?:[a-z]+@\\)?\\([a-z0-9\.-]+\\)/\\([a-z0-9\-]+/[a-z0-9\.\-]+\\)" origin)))
+  (let ((matches (s-match "https://\\(?:[a-z]+@\\)?\\([a-z0-9\.-_]+\\)/\\([a-z0-9\-_]+/[a-z0-9\.\-_]+\\)" origin)))
     (list (nth 1 matches)
           (file-name-sans-extension (nth 2 matches)))))
 
