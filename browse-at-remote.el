@@ -60,7 +60,29 @@
     (vc-git--call t "config" "--get" "remote.origin.url")
     (s-replace "\n" "" (buffer-string))))
 
-(defun browse-at-remote/format-as-github (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/get-remote-type-from-config ()
+  "Get remote type from current repo"
+  (with-temp-buffer
+    (vc-git--call t "config" "--get" "browseAtRemote.type")
+    (s-replace "\n" "" (buffer-string))))
+
+(defun browse-at-remote/get-remote-type (target-repo)
+  (let* ((domain (car target-repo))
+         (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
+    (if (or (string= remote-type-from-config "github") (string= remote-type-from-config "bitbucket"))
+        remote-type-from-config
+      (pcase domain
+        (`"bitbucket.org" "bitbucket")
+        (`"github.com" "github")))))
+
+(defun browse-at-remote/get-formatter (formatter-type remote-type)
+  "Get formatter function name for given formatter type (region-url or commit-url) and remote-type (github or bitbucket)"
+  (let ((formatter (intern (format "browse-at-remote/format-%s-as-%s" formatter-type remote-type))))
+    (if (fboundp formatter)
+        formatter
+      nil)))
+
+(defun browse-at-remote/format-region-url-as-github (repo-url location filename &optional linestart lineend)
   "URL formatted for github"
   (cond
    ((and linestart lineend)
@@ -68,45 +90,45 @@
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
-(defun browse-at-remote/format-as-bitbucket (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/format-commit-url-as-github (repo-url commithash)
+  "Commit URL formatted for github"
+  (format "%s/commit/%s" repo-url commithash))
+
+(defun browse-at-remote/format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"
   (cond
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
-(defun browse-at-remote/view-particular-commit-at-github (commithash &optional to_clipboard)
-  "Open commit page at github"
-  (let (
-        (repo (cdr (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin))))
+(defun browse-at-remote/format-commit-url-as-bitbucket (repo-url commithash)
+  "Commit URL formatted for bitbucket"
+  (format "%s/commits/%s" repo-url commithash))
+
+(defun browse-at-remote/view-particular-commit-at-remote (commithash &optional to_clipboard)
+  "Open commit page at remote"
+  (let* ((target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
+        (repo-url (cdr target-repo))
+        (remote-type (browse-at-remote/get-remote-type target-repo))
         (action-func (if to_clipboard 'kill-new 'browse-url))
         (clear-commithash (s-chop-prefixes '("^") commithash))
-        )
-    (funcall action-func
-     (cond
-      ((s-prefix? "https://github.com" repo) (format "%s/commit/%s" repo clear-commithash))
-      ((s-prefix? "https://bitbucket.org" repo) (format "%s/commits/%s" repo clear-commithash)))
-     )))
+        (url-formatter (browse-at-remote/get-formatter 'commit-url remote-type)))
+    (if url-formatter
+        (funcall action-func (funcall url-formatter repo-url clear-commithash))
+      (message (format "Origin repo parsing failed: %s" repo-url)))))
 
 (defun browse-at-remote-at-place (filename &optional start end to_clipboard)
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
-         (domain (car target-repo))
+         (remote-type (browse-at-remote/get-remote-type target-repo))
          (repo-url (cdr target-repo))
-         (url-format
-          (pcase domain
-            (`"bitbucket.org" 'browse-at-remote/format-as-bitbucket)
-            (`"github.com" 'browse-at-remote/format-as-github)
-            ))
-         (action-func (if to_clipboard 'kill-new 'browse-url))
-         )
-
-    (if url-format
-        (funcall action-func (funcall url-format repo-url branch relname
+         (url-formatter (browse-at-remote/get-formatter 'region-url remote-type))
+         (action-func (if to_clipboard 'kill-new 'browse-url)))
+    (if url-formatter
+        (funcall action-func (funcall url-formatter repo-url branch relname
                                        (if start (line-number-at-pos start))
                                        (if end (line-number-at-pos end))))
-      (message (format "Origin repo parsing failed: %s" (browse-at-remote/get-origin))))
-    ))
+      (message (format "Origin repo parsing failed: %s" repo-url)))))
 
 ;;;###autoload
 (defun browse-at-remote(&optional to_clipboard)
@@ -118,7 +140,7 @@
 
    ;; magit-log-mode
    ((or (eq major-mode 'magit-log-mode) (eq major-mode 'vc-annotate-mode))
-    (browse-at-remote/view-particular-commit-at-github
+    (browse-at-remote/view-particular-commit-at-remote
      (save-excursion
        (beginning-of-line)
        (search-forward " ")
@@ -132,7 +154,7 @@
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
              (commithash (car (s-split " " first-line)))
              )
-        (browse-at-remote/view-particular-commit-at-github commithash to_clipboard))
+        (browse-at-remote/view-particular-commit-at-remote commithash to_clipboard))
       ))
 
    ;; now assume that we're inside of file-attached buffer
