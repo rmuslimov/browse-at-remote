@@ -58,13 +58,13 @@ Usage:
 
 3. Opening github commit's page at *magit-commit-mode*, *magit-log-mode*:
 
-   .. image:: http://i.imgur.com/06ZusE3.png
-      alt: screenshot of *magit-commit-mode*
-
    .. image:: http://i.imgur.com/NzlIHYr.png
       alt: screenshot of *magit-log-mode*
 
 4. Open last commit which added target line:
+
+   .. image:: http://i.imgur.com/lpmOAz2.png
+      alt: screen of *vc-annotate-mode*
 
    - Press `C-x v g` to call standard vc-annotate
    - Call `browse-at-remote` on target line
@@ -73,10 +73,17 @@ Usage:
 Changelog:
 --------
 
+0.5.0
+*****
+
+- Added support of Github Enterprice. Special thanks for `@env0der`_ for this feature.
+
+.. _`@env0der`: https://github.com/env0der
+
 0.4.0
 *****
 
-- function `browse-at-remote/to-clipboard` were added
+- Function `browse-at-remote/to-clipboard` were added
 
 TODO:
 -----
