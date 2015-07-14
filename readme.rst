@@ -28,6 +28,10 @@ Active keybindings for ``browse-at-remote`` function:::
 
   (global-set-key (kbd "C-c g g") 'browse-at-remote)
 
+If your repository is hosted on GitHub enterprise, you should add following setting to it's config:::
+
+  git config --add browseAtRemote.type "github"
+
 
 Usage:
 ------
