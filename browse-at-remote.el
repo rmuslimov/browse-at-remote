@@ -57,7 +57,7 @@
 (defun browse-at-remote/get-origin ()
   "Get origin from current repo"
   (with-temp-buffer
-    (vc-git--call t "config" "--get" "remote.origin.url")
+    (vc-git--call t "ls-remote" "--get-url" "origin")
     (s-replace "\n" "" (buffer-string))))
 
 (defun browse-at-remote/get-remote-type-from-config ()
