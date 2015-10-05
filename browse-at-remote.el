@@ -86,7 +86,7 @@
   "URL formatted for github"
   (cond
    ((and linestart lineend)
-    (format "%s/blob/%s/%s#L%d-%d" repo-url location filename linestart lineend))
+    (format "%s/blob/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
