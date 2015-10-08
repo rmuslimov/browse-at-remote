@@ -39,8 +39,8 @@
   (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" origin)))
 
 (defun browse-at-remote/parse-https-prefixed (origin)
-  "Extract domain and slug from origin like https://...."
-  (let ((matches (s-match "https://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" origin)))
+  "Extract domain and slug from origin like https://.... or http://...."
+  (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" origin)))
     (list (nth 1 matches)
           (file-name-sans-extension (nth 2 matches)))))
 
@@ -49,10 +49,12 @@
   (let* ((parsed
           (cond
            ((s-starts-with? "git" origin) (browse-at-remote/parse-git-prefixed origin))
-           ((s-starts-with? "https" origin) (browse-at-remote/parse-https-prefixed origin))))
+           ((s-starts-with? "http" origin) (browse-at-remote/parse-https-prefixed origin))))
+         (proto
+          (if (s-starts-with? "https" origin) "https" "http"))
          (domain (car parsed))
          (slug (nth 1 parsed)))
-    (cons domain (format "https://%s/%s" domain slug))))
+    (cons domain (format "%s://%s/%s" proto domain slug))))
 
 (defun browse-at-remote/get-origin ()
   "Get origin from current repo"
