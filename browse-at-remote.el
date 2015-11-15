@@ -1,11 +1,11 @@
 ;; -*- lexical-binding:t -*-
-;;; browse-at-remote.el --- Open page at github/bitbucket from emacs buffers
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket page from Emacs
 
 ;; Copyright © 2015 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.6.0
-;; Keywords:   github, bitbucket, convenience
+;; Keywords:   github, gitlab, bitbucket, convenience
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 
-;; Easily open target page on github (or bitbucket) from Emacs.
+;; Easily open target page on github/gitlab (or bitbucket) from Emacs.
 ;; by calling `browse-at-remote` function. Support dired buffers and opens
 ;; them in tree mode at destination.
 

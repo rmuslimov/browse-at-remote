@@ -4,11 +4,12 @@
 browse-at-remote.el
 ===================
 
-I'm tired to walk through Github/Bitbucket -> find required file, select particular branch and stand on required line. This package provides simple function may be called from emacs buffer, and opens target page.
+This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket* from Emacs. It supports various kind of emacs buffer, like:
 
-Works only for git-repos and Github/Bitbucket hosted repositories.
-
-p.s. This is openatgithub.el project reincornation.
+- file buffer
+- dired buffer
+- magit-mode buffers represinting code
+- vc-annotate mode (use get there by pressing ``C-x v g`` by default)
 
 Installation:
 -------------
