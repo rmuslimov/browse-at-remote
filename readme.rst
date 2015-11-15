@@ -69,16 +69,25 @@ Usage:
    - Press `C-x v g` to call standard vc-annotate
    - Call `browse-at-remote` on target line
 
+Contributors:
+-------------
+
+- `@env0der`_
+- `@ben`_
+- `@duff`_
+
 
 Changelog:
 --------
+
+0.6.0
+*****
+- Added support of Gitlab by `@env0der`_. Thanks!
 
 0.5.0
 *****
 
 - Added support of Github Enterprice. Special thanks for `@env0der`_ for this feature.
-
-.. _`@env0der`: https://github.com/env0der
 
 0.4.0
 *****
@@ -89,3 +98,8 @@ TODO:
 -----
 
 - Add mercurial support
+
+
+.. _`@env0der`: https://github.com/env0der
+.. _`@ben`: https://github.com/ben
+.. _`@duff`: https://github.com/duff
