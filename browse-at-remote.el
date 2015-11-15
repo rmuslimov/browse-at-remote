@@ -71,11 +71,12 @@
 (defun browse-at-remote/get-remote-type (target-repo)
   (let* ((domain (car target-repo))
          (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
-    (if (or (string= remote-type-from-config "github") (string= remote-type-from-config "bitbucket"))
+    (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
         remote-type-from-config
       (pcase domain
         (`"bitbucket.org" "bitbucket")
-        (`"github.com" "github")))))
+        (`"github.com" "github")
+        (`"gitlab.com" "gitlab")))))
 
 (defun browse-at-remote/get-formatter (formatter-type remote-type)
   "Get formatter function name for given formatter type (region-url or commit-url) and remote-type (github or bitbucket)"
@@ -105,6 +106,20 @@
 (defun browse-at-remote/format-commit-url-as-bitbucket (repo-url commithash)
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
+
+(defun browse-at-remote/format-region-url-as-gitlab (repo-url location filename &optional linestart lineend)
+  "URL formatted for gitlab.
+   The only difference from github is format of region: L1-2 instead of L1-L2"
+  (cond
+   ((and linestart lineend)
+    (format "%s/blob/%s/%s#L%d-%d" repo-url location filename linestart lineend))
+   (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
+   (t (format "%s/tree/%s/%s" repo-url location filename))))
+
+(defun browse-at-remote/format-commit-url-as-gitlab (repo-url commithash)
+  "Commit URL formatted for gitlab.
+   Currently the same as for github."
+  (format "%s/commit/%s" repo-url commithash))
 
 (defun browse-at-remote/view-particular-commit-at-remote (commithash &optional to_clipboard)
   "Open commit page at remote"
