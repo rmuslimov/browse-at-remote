@@ -34,6 +34,25 @@
 (require 'f)
 (require 's)
 
+(defgroup browse-at-remote nil
+  "Open target on github/gitlab/bitbucket"
+  :prefix "browse-at-remote/"
+  :group 'applications)
+
+(defcustom browse-at-remote/remote-type-domains
+  '(("bitbucket.org" ."bitbucket")
+    ("github.com" . "github")
+    ("gitlab.com" . "gitlab"))
+  "Alist of domain patterns to remote types.
+
+   For remote URLs matching these domain patterns, "
+  :type '(alist :key-type (string :tag "Domain")
+                :value-type (choice
+                             (const :tag "GitHub" "github")
+                             (const :tag "GitLab" "gitlab")
+                             (const :tag "BitBucket" "bitbucket")))
+  :group 'browse-at-remote)
+
 (defun browse-at-remote/parse-git-prefixed (origin)
   "Extract domain and slug from ORIGIN like git@..."
   (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" origin)))
@@ -90,10 +109,9 @@
          (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
     (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
         remote-type-from-config
-      (pcase domain
-        (`"bitbucket.org" "bitbucket")
-        (`"github.com" "github")
-        (`"gitlab.com" "gitlab"))))
+      (loop for pt in browse-at-remote/remote-type-domains
+            when (string= (car pt) domain)
+            return (cdr pt))))
 
    (error (format "Sorry, not sure what to do with repo `%s'" target-repo))))
 
