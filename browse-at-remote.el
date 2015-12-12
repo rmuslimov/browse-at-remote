@@ -35,17 +35,17 @@
 (require 's)
 
 (defun browse-at-remote/parse-git-prefixed (origin)
-  "Extract domain and slug for origin like git@..."
+  "Extract domain and slug from ORIGIN like git@..."
   (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" origin)))
 
 (defun browse-at-remote/parse-https-prefixed (origin)
-  "Extract domain and slug from origin like https://.... or http://...."
+  "Extract domain and slug from ORIGIN like https://.... or http://...."
   (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" origin)))
     (list (nth 1 matches)
           (file-name-sans-extension (nth 2 matches)))))
 
 (defun browse-at-remote/get-url-from-origin (origin)
-  "Extract browseable repo url from origin definition"
+  "Extract browseable repo url from ORIGIN."
   (let* ((parsed
           (cond
            ((s-starts-with? "git" origin) (browse-at-remote/parse-git-prefixed origin))
@@ -57,13 +57,13 @@
     (cons domain (format "%s://%s/%s" proto domain slug))))
 
 (defun browse-at-remote/get-origin ()
-  "Get origin from current repo"
+  "Get origin from current repo."
   (with-temp-buffer
     (vc-git--call t "ls-remote" "--get-url" "origin")
     (s-replace "\n" "" (buffer-string))))
 
 (defun browse-at-remote/get-remote-type-from-config ()
-  "Get remote type from current repo"
+  "Get remote type from current repo."
   (with-temp-buffer
     (vc-git--call t "config" "--get" "browseAtRemote.type")
     (s-replace "\n" "" (buffer-string))))
@@ -79,7 +79,7 @@
         (`"gitlab.com" "gitlab")))))
 
 (defun browse-at-remote/get-formatter (formatter-type remote-type)
-  "Get formatter function name for given formatter type (region-url or commit-url) and remote-type (github or bitbucket)"
+  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
   (let ((formatter (intern (format "browse-at-remote/format-%s-as-%s" formatter-type remote-type))))
     (if (fboundp formatter)
         formatter
@@ -121,47 +121,51 @@
    Currently the same as for github."
   (format "%s/commit/%s" repo-url commithash))
 
-(defun browse-at-remote/view-particular-commit-at-remote (commithash &optional to_clipboard)
-  "Open commit page at remote"
+(defun browse-at-remote/commit-url (commithash)
+  "Return the URL to browse COMMITHASH."
   (let* ((target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
-        (repo-url (cdr target-repo))
-        (remote-type (browse-at-remote/get-remote-type target-repo))
-        (action-func (if to_clipboard 'kill-new 'browse-url))
-        (clear-commithash (s-chop-prefixes '("^") commithash))
-        (url-formatter (browse-at-remote/get-formatter 'commit-url remote-type)))
-    (if url-formatter
-        (funcall action-func (funcall url-formatter repo-url clear-commithash))
-      (message (format "Origin repo parsing failed: %s" repo-url)))))
+         (repo-url (cdr target-repo))
+         (remote-type (browse-at-remote/get-remote-type target-repo))
+         (clear-commithash (s-chop-prefixes '("^") commithash))
+         (url-formatter (browse-at-remote/get-formatter 'commit-url remote-type)))
+    (unless url-formatter
+      (error (format "Origin repo parsing failed: %s" repo-url)))
+    (funcall url-formatter repo-url clear-commithash)))
 
-(defun browse-at-remote-at-place (filename &optional start end to_clipboard)
+(defun browse-at-remote/file-url (filename &optional start end)
+  "Return the URL to browse FILENAME from lines START to END. "
   (let* ((branch (vc-git-working-revision filename))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
          (remote-type (browse-at-remote/get-remote-type target-repo))
          (repo-url (cdr target-repo))
          (url-formatter (browse-at-remote/get-formatter 'region-url remote-type))
-         (action-func (if to_clipboard 'kill-new 'browse-url)))
-    (if url-formatter
-        (funcall action-func (funcall url-formatter repo-url branch relname
-                                       (if start (line-number-at-pos start))
-                                       (if end (line-number-at-pos end))))
-      (message (format "Origin repo parsing failed: %s" repo-url)))))
+         (start-line (when start (line-number-at-pos start)))
+         (end-line (when end (line-number-at-pos end))))
+    (unless url-formatter
+      (error (format "Origin repo parsing failed: %s" repo-url)))
 
-;;;###autoload
-(defun browse-at-remote(&optional to_clipboard)
-  "Main function for interactive calls"
-  (interactive)
+    (funcall url-formatter repo-url branch relname
+             (if start-line start-line)
+             (if (and end-line (not (equal start-line end-line))) end-line))))
+
+(defun browse-at-remote-1 ()
   (cond
    ;; dired-mode
-   ((eq major-mode 'dired-mode) (browse-at-remote-at-place (dired-current-directory)))
+   ((eq major-mode 'dired-mode)
+    (browse-at-remote/file-url (dired-current-directory)))
+
+   ;; magit-status-mode
+   ((eq major-mode 'magit-status-mode)
+    (browse-at-remote/file-url default-directory))
 
    ;; magit-log-mode
    ((or (eq major-mode 'magit-log-mode) (eq major-mode 'vc-annotate-mode))
-    (browse-at-remote/view-particular-commit-at-remote
+    (browse-at-remote/commit-url
      (save-excursion
        (beginning-of-line)
        (search-forward " ")
-       (buffer-substring-no-properties (line-beginning-position) (- (point) 1))) to_clipboard))
+       (buffer-substring-no-properties (line-beginning-position) (- (point) 1)))))
 
    ;; magit-commit-mode
    ((eq major-mode 'magit-commit-mode)
@@ -169,25 +173,37 @@
       (beginning-of-buffer)
       (let* ((first-line
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-             (commithash (car (s-split " " first-line)))
-             )
-        (browse-at-remote/view-particular-commit-at-remote commithash to_clipboard))
-      ))
+             (commithash (car (s-split " " first-line))))
+        (browse-at-remote/commit-url commithash))))
 
-   ;; now assume that we're inside of file-attached buffer
-   ((not (use-region-p)) (browse-at-remote-at-place (buffer-file-name) (point) nil to_clipboard))
-   ((let ((point-begin (min (region-beginning) (region-end)))
+   ;; We're inside of file-attached buffer with active region
+   ((and buffer-file-name (use-region-p))
+    (let ((point-begin (min (region-beginning) (region-end)))
           (point-end (max (region-beginning) (region-end))))
-      (browse-at-remote-at-place
-       (buffer-file-name) point-begin
-       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end) to_clipboard)
-      ))))
+      (browse-at-remote/file-url
+       buffer-file-name point-begin
+       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))))
+
+   ;; We're inside of file-attached buffer without region
+   (buffer-file-name
+    (browse-at-remote/file-url (buffer-file-name)))
+
+   (t (error "Sorry, I'm not sure what to do with this."))))
 
 ;;;###autoload
-(defun browse-at-remote/to-clipboard ()
-  "Helper method to use clipboard instead browse-url function"
+(defun browse-at-remote/browse ()
+  "Browse the current file with `browse-url'."
   (interactive)
-  (browse-at-remote t))
+  (browse-url (browse-at-remote-1)))
+
+;;;###autoload
+(defun browse-at-remote/kill ()
+  "Add the URL of the current file to the kill ring.
+
+   Works like `browse-at-remote/browse', but puts the address in the
+   kill ring instead of opening it with `browse-url'."
+  (interactive)
+  (kill-new (browse-at-remote-1)))
 
 (provide 'browse-at-remote)
 
