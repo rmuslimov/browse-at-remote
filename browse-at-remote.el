@@ -57,10 +57,26 @@
     (cons domain (format "%s://%s/%s" proto domain slug))))
 
 (defun browse-at-remote/get-origin ()
-  "Get origin from current repo."
+  "Get origin from current repo.
+
+   Looks for a remote named \"origin\"; if this doesn't exist, returns
+   the first remote from the list of all known remotes."
+  (let ((remotes (browse-at-remote/get-remotes)))
+    (browse-at-remote/get-remote-url (if (memq "origin" remotes)
+        "origin"
+      (car remotes)))))
+
+(defun browse-at-remote/get-remote-url (remote)
+  "Get URL of REMOTE from current repo."
   (with-temp-buffer
-    (vc-git--call t "ls-remote" "--get-url" "origin")
+    (vc-git--call t "ls-remote" "--get-url" remote)
     (s-replace "\n" "" (buffer-string))))
+
+(defun browse-at-remote/get-remotes ()
+  "Get a list of known remotes."
+  (with-temp-buffer
+    (vc-git--call t "remote")
+    (s-split "\\W+" (s-trim (buffer-string)))))
 
 (defun browse-at-remote/get-remote-type-from-config ()
   "Get remote type from current repo."
@@ -69,14 +85,17 @@
     (s-replace "\n" "" (buffer-string))))
 
 (defun browse-at-remote/get-remote-type (target-repo)
-  (let* ((domain (car target-repo))
+  (or
+   (let* ((domain (car target-repo))
          (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
     (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
         remote-type-from-config
       (pcase domain
         (`"bitbucket.org" "bitbucket")
         (`"github.com" "github")
-        (`"gitlab.com" "gitlab")))))
+        (`"gitlab.com" "gitlab"))))
+
+   (error (format "Sorry, not sure what to do with repo `%s'" target-repo))))
 
 (defun browse-at-remote/get-formatter (formatter-type remote-type)
   "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
