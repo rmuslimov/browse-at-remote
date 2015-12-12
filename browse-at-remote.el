@@ -182,9 +182,11 @@
    ((or (eq major-mode 'magit-log-mode) (eq major-mode 'vc-annotate-mode))
     (browse-at-remote/commit-url
      (save-excursion
-       (beginning-of-line)
-       (search-forward " ")
-       (buffer-substring-no-properties (line-beginning-position) (- (point) 1)))))
+       (save-restriction
+         (widen)
+         (goto-char (point-min))
+         (search-forward " ")
+         (buffer-substring-no-properties (line-beginning-position) (- (point) 1))))))
 
    ;; magit-commit-mode
    ((eq major-mode 'magit-commit-mode)
