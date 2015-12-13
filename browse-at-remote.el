@@ -4,7 +4,7 @@
 ;; Copyright © 2015 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.6.0
+;; Version:    0.7.0
 ;; Keywords:   github, gitlab, bitbucket, convenience
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
 
@@ -70,7 +70,7 @@
            ((s-starts-with? "git" origin) (browse-at-remote/parse-git-prefixed origin))
            ((s-starts-with? "http" origin) (browse-at-remote/parse-https-prefixed origin))))
          (proto
-          (if (s-starts-with? "https" origin) "https" "http"))
+          (if (s-starts-with? "http:" origin) "http" "https"))
          (domain (car parsed))
          (slug (nth 1 parsed)))
     (cons domain (format "%s://%s/%s" proto domain slug))))
@@ -123,7 +123,7 @@
       nil)))
 
 (defun browse-at-remote/format-region-url-as-github (repo-url location filename &optional linestart lineend)
-  "URL formatted for github"
+  "URL formatted for github."
   (cond
    ((and linestart lineend)
     (format "%s/blob/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
@@ -146,7 +146,7 @@
 
 (defun browse-at-remote/format-region-url-as-gitlab (repo-url location filename &optional linestart lineend)
   "URL formatted for gitlab.
-   The only difference from github is format of region: L1-2 instead of L1-L2"
+The only difference from github is format of region: L1-2 instead of L1-L2"
   (cond
    ((and linestart lineend)
     (format "%s/blob/%s/%s#L%d-%d" repo-url location filename linestart lineend))
@@ -155,7 +155,7 @@
 
 (defun browse-at-remote/format-commit-url-as-gitlab (repo-url commithash)
   "Commit URL formatted for gitlab.
-   Currently the same as for github."
+Currently the same as for github."
   (format "%s/commit/%s" repo-url commithash))
 
 (defun browse-at-remote/commit-url (commithash)
@@ -186,7 +186,9 @@
              (if start-line start-line)
              (if (and end-line (not (equal start-line end-line))) end-line))))
 
-(defun browse-at-remote-1 ()
+(defun browse-at-remote/get-url ()
+  "Main method, returns URL to browse."
+
   (cond
    ;; dired-mode
    ((eq major-mode 'dired-mode)
@@ -225,7 +227,7 @@
 
    ;; We're inside of file-attached buffer without region
    (buffer-file-name
-    (browse-at-remote/file-url (buffer-file-name)))
+    (browse-at-remote/file-url (buffer-file-name) (point)))
 
    (t (error "Sorry, I'm not sure what to do with this."))))
 
@@ -233,16 +235,22 @@
 (defun browse-at-remote/browse ()
   "Browse the current file with `browse-url'."
   (interactive)
-  (browse-url (browse-at-remote-1)))
+  (browse-url (browse-at-remote/get-url)))
 
 ;;;###autoload
 (defun browse-at-remote/kill ()
   "Add the URL of the current file to the kill ring.
-
-   Works like `browse-at-remote/browse', but puts the address in the
-   kill ring instead of opening it with `browse-url'."
+Works like `browse-at-remote/browse', but puts the address in the
+kill ring instead of opening it with `browse-url'."
   (interactive)
-  (kill-new (browse-at-remote-1)))
+  (kill-new (browse-at-remote/get-url)))
+
+(defun browse-at-remote ()
+  "Function has been renamed to browse-at-remote/browse,
+and appears here just for backward compatibilty."
+  (interactive)
+  (display-warning :warning "Please use browse-at-remote/browse instead of browse-at-remote.")
+  (browse-at-remote/browse))
 
 (provide 'browse-at-remote)
 

@@ -81,6 +81,10 @@ Contributors:
 Changelog:
 --------
 
+0.7.0
+*****
+Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote\browse`.
+
 0.6.0
 *****
 - Added support of Gitlab by `@env0der`_. Thanks!
@@ -104,3 +108,4 @@ TODO:
 .. _`@env0der`: https://github.com/env0der
 .. _`@ben`: https://github.com/ben
 .. _`@duff`: https://github.com/duff
+.. _`@ieure`: https://github.com/ieure
