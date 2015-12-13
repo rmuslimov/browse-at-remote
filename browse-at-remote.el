@@ -240,6 +240,7 @@ Currently the same as for github."
 ;;;###autoload
 (defun browse-at-remote/kill ()
   "Add the URL of the current file to the kill ring.
+
 Works like `browse-at-remote/browse', but puts the address in the
 kill ring instead of opening it with `browse-url'."
   (interactive)
@@ -254,8 +255,8 @@ kill ring instead of opening it with `browse-url'."
 (defalias 'browse-at-remote/to-clipboard 'browse-at-remote/kill
   "Add the URL of the current file to the kill ring.
 
-   Works like `browse-at-remote/browse', but puts the address in the
-   kill ring instead of opening it with `browse-url'.")
+Works like `browse-at-remote/browse', but puts the address in the
+kill ring instead of opening it with `browse-url'.")
 
 (make-obsolete 'browse-at-remote/to-clipboard 'browse-at-remote/kill "0.7.0")
 
