@@ -83,7 +83,7 @@ Changelog:
 
 0.7.0
 *****
-Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote\browse`.
+Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/browse`.
 
 0.6.0
 *****
