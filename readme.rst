@@ -27,9 +27,9 @@ Simply add this package to your emacs path, and add to ``.emacs``,::
 
 Active keybindings for ``browse-at-remote`` function:::
 
-  (global-set-key (kbd "C-c g g") 'browse-at-remote)
+  (global-set-key (kbd "C-c g g") 'browse-at-remote/browse)
 
-If your repository is hosted on GitHub enterprise, you should add following setting to it's config:::
+If your repository is hosted on GitHub enterprise, you should add following setting to its config:::
 
   git config --add browseAtRemote.type "github"
 
@@ -39,7 +39,7 @@ Usage:
 
 1. Call function from emacs buffer::
 
-     M-x browse-at-remote
+     M-x browse-at-remote/browse
 
    .. image:: http://i.imgur.com/rmAky8e.png
 
@@ -81,6 +81,10 @@ Contributors:
 Changelog:
 --------
 
+0.7.0
+*****
+Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/browse`.
+
 0.6.0
 *****
 - Added support of Gitlab by `@env0der`_. Thanks!
@@ -104,3 +108,4 @@ TODO:
 .. _`@env0der`: https://github.com/env0der
 .. _`@ben`: https://github.com/ben
 .. _`@duff`: https://github.com/duff
+.. _`@ieure`: https://github.com/ieure
