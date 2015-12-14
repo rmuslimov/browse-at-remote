@@ -1,12 +1,11 @@
-;; -*- lexical-binding:t -*-
-;;; browse-at-remote.el --- Open github/gitlab/bitbucket page from Emacs
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket page from Emacs -*- lexical-binding:t -*-
 
 ;; Copyright © 2015 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.7.0
 ;; Keywords:   github, gitlab, bitbucket, convenience
-;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
+;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,6 +32,8 @@
 
 (require 'f)
 (require 's)
+(require 'cl-lib)
+(require 'vc-git)
 
 (defgroup browse-at-remote nil
   "Open target on github/gitlab/bitbucket"
@@ -109,9 +110,9 @@
          (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
     (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
         remote-type-from-config
-      (loop for pt in browse-at-remote/remote-type-domains
-            when (string= (car pt) domain)
-            return (cdr pt))))
+      (cl-loop for pt in browse-at-remote/remote-type-domains
+               when (string= (car pt) domain)
+               return (cdr pt))))
 
    (error (format "Sorry, not sure what to do with repo `%s'" target-repo))))
 
@@ -134,7 +135,7 @@
   "Commit URL formatted for github"
   (format "%s/commit/%s" repo-url commithash))
 
-(defun browse-at-remote/format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/format-region-url-as-bitbucket (repo-url location filename &optional linestart _lineend)
   "URL formatted for bitbucket"
   (cond
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
@@ -211,7 +212,7 @@ Currently the same as for github."
    ;; magit-commit-mode
    ((eq major-mode 'magit-commit-mode)
     (save-excursion
-      (beginning-of-buffer)
+      (goto-char (point-min))
       (let* ((first-line
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
              (commithash (car (s-split " " first-line))))
