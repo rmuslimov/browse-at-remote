@@ -3,7 +3,7 @@
 ;; Copyright © 2015 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.7.0
+;; Version:    0.7.1
 ;; Keywords:   github, gitlab, bitbucket, convenience
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
