@@ -5,7 +5,7 @@
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.7.0
 ;; Keywords:   github, gitlab, bitbucket, convenience
-;; Package-Requires: ((f "0.17.2") (s "1.9.0"))
+;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 
 (require 'f)
 (require 's)
+(require 'cl-lib)
 
 (defgroup browse-at-remote nil
   "Open target on github/gitlab/bitbucket"
@@ -108,9 +109,9 @@
          (remote-type-from-config (browse-at-remote/get-remote-type-from-config)))
     (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
         remote-type-from-config
-      (loop for pt in browse-at-remote/remote-type-domains
-            when (string= (car pt) domain)
-            return (cdr pt))))
+      (cl-loop for pt in browse-at-remote/remote-type-domains
+               when (string= (car pt) domain)
+               return (cdr pt))))
 
    (error (format "Sorry, not sure what to do with repo `%s'" target-repo))))
 
