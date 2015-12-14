@@ -1,5 +1,4 @@
-;; -*- lexical-binding:t -*-
-;;; browse-at-remote.el --- Open github/gitlab/bitbucket page from Emacs
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket page from Emacs -*- lexical-binding:t -*-
 
 ;; Copyright © 2015 Rustem Muslimov
 ;;
