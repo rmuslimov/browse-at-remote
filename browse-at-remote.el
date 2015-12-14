@@ -33,6 +33,7 @@
 (require 'f)
 (require 's)
 (require 'cl-lib)
+(require 'vc-git)
 
 (defgroup browse-at-remote nil
   "Open target on github/gitlab/bitbucket"
@@ -134,7 +135,7 @@
   "Commit URL formatted for github"
   (format "%s/commit/%s" repo-url commithash))
 
-(defun browse-at-remote/format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote/format-region-url-as-bitbucket (repo-url location filename &optional linestart _lineend)
   "URL formatted for bitbucket"
   (cond
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
@@ -211,7 +212,7 @@ Currently the same as for github."
    ;; magit-commit-mode
    ((eq major-mode 'magit-commit-mode)
     (save-excursion
-      (beginning-of-buffer)
+      (goto-char (point-min))
       (let* ((first-line
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
              (commithash (car (s-split " " first-line))))
