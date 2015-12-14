@@ -82,9 +82,10 @@
    Looks for a remote named \"origin\"; if this doesn't exist, returns
    the first remote from the list of all known remotes."
   (let ((remotes (browse-at-remote/get-remotes)))
-    (browse-at-remote/get-remote-url (if (memq "origin" remotes)
-        "origin"
-      (car remotes)))))
+    (browse-at-remote/get-remote-url
+     (or (car (member "origin" remotes))
+         (car remotes)
+         (error "No remotes in this repo.")))))
 
 (defun browse-at-remote/get-remote-url (remote)
   "Get URL of REMOTE from current repo."
@@ -96,7 +97,9 @@
   "Get a list of known remotes."
   (with-temp-buffer
     (vc-git--call t "remote")
-    (s-split "\\W+" (s-trim (buffer-string)))))
+    (let ((remotes (s-trim (buffer-string))))
+      (unless (string= remotes "")
+        (s-split "\\W+" remotes)))))
 
 (defun browse-at-remote/get-remote-type-from-config ()
   "Get remote type from current repo."
