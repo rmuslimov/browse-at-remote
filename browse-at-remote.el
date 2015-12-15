@@ -44,9 +44,8 @@
   '(("bitbucket.org" ."bitbucket")
     ("github.com" . "github")
     ("gitlab.com" . "gitlab"))
-  "Alist of domain patterns to remote types.
+  "Alist of domain patterns to remote types."
 
-   For remote URLs matching these domain patterns, "
   :type '(alist :key-type (string :tag "Domain")
                 :value-type (choice
                              (const :tag "GitHub" "github")
