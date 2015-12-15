@@ -53,24 +53,25 @@
                              (const :tag "BitBucket" "bitbucket")))
   :group 'browse-at-remote)
 
-(defun browse-at-remote/parse-git-prefixed (origin)
-  "Extract domain and slug from ORIGIN like git@..."
-  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" origin)))
 
-(defun browse-at-remote/parse-https-prefixed (origin)
-  "Extract domain and slug from ORIGIN like https://.... or http://...."
-  (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" origin)))
+(defun browse-at-remote/parse-git-prefixed (remote-url)
+  "Extract domain and slug from REMOTE-URL like git@..."
+  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
+
+(defun browse-at-remote/parse-https-prefixed (remote-url)
+  "Extract domain and slug from REMOTE-URL like https://.... or http://...."
+  (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" remote-url)))
     (list (nth 1 matches)
           (file-name-sans-extension (nth 2 matches)))))
 
-(defun browse-at-remote/get-url-from-origin (origin)
-  "Extract browseable repo url from ORIGIN."
+(defun browse-at-remote/get-url-from-remote (remote-url)
+  "Return (DOMAIN . URL) from REMOTE-URL."
   (let* ((parsed
           (cond
-           ((s-starts-with? "git" origin) (browse-at-remote/parse-git-prefixed origin))
-           ((s-starts-with? "http" origin) (browse-at-remote/parse-https-prefixed origin))))
+           ((s-starts-with? "git" remote-url) (browse-at-remote/parse-git-prefixed remote-url))
+           ((s-starts-with? "http" remote-url) (browse-at-remote/parse-https-prefixed remote-url))))
          (proto
-          (if (s-starts-with? "http:" origin) "http" "https"))
+          (if (s-starts-with? "http:" remote-url) "http" "https"))
          (domain (car parsed))
          (slug (nth 1 parsed)))
     (cons domain (format "%s://%s/%s" proto domain slug))))
