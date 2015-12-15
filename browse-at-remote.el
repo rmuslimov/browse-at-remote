@@ -53,6 +53,16 @@
                              (const :tag "BitBucket" "bitbucket")))
   :group 'browse-at-remote)
 
+(defcustom browse-at-remote/prefer-symbolic t
+  "Whether to prefer symbolic references when linking.
+
+When t, uses the branch name, if available. This generates easier to
+read URLs, but for long-lived links, the content of the linked file
+may change, producing link rot.
+
+When nil, uses the commit hash. The contents will never change."
+  :type 'boolean
+  :group 'browse-at-remote)
 
 (defun browse-at-remote/parse-git-prefixed (remote-url)
   "Extract domain and slug from REMOTE-URL like git@..."
@@ -76,16 +86,24 @@
          (slug (nth 1 parsed)))
     (cons domain (format "%s://%s/%s" proto domain slug))))
 
-(defun browse-at-remote/get-origin ()
-  "Get origin from current repo.
+(defun browse-at-remote/remote-ref (&optional filename)
+  "Return the remote & commit ref which FILENAME is in.
 
-   Looks for a remote named \"origin\"; if this doesn't exist, returns
-   the first remote from the list of all known remotes."
-  (let ((remotes (browse-at-remote/get-remotes)))
-    (browse-at-remote/get-remote-url
-     (or (car (member "origin" remotes))
-         (car remotes)
-         (error "No remotes in this repo.")))))
+Returns (REMOTE-URL . REF) or nil, if the local branch doesn't track a remote."
+  (let* ((local-branch (vc-git-working-revision (or filename ".")))
+         (remote (and local-branch (browse-at-remote/get-from-config
+                                    (format "branch.%s.remote" local-branch))))
+         (remote (when remote (browse-at-remote/get-remote-url remote)))
+         (remote-branch
+          (s-chop-prefix "refs/heads/"
+                         (and local-branch (browse-at-remote/get-from-config
+                                            (format "branch.%s.merge" local-branch))))))
+    (unless (and (string= remote "")
+                 (string= remote-branch ""))
+      (cons remote
+            (if (not browse-at-remote/prefer-symbolic)
+                (vc-git--rev-parse "HEAD")
+              remote-branch)))))
 
 (defun browse-at-remote/get-remote-url (remote)
   "Get URL of REMOTE from current repo."
@@ -167,7 +185,8 @@ Currently the same as for github."
 
 (defun browse-at-remote/commit-url (commithash)
   "Return the URL to browse COMMITHASH."
-  (let* ((target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
+  (let* ((remote (car (browse-at-remote/remote-ref)))
+         (target-repo (browse-at-remote/get-url-from-remote remote))
          (repo-url (cdr target-repo))
          (remote-type (browse-at-remote/get-remote-type target-repo))
          (clear-commithash (s-chop-prefixes '("^") commithash))
@@ -178,9 +197,11 @@ Currently the same as for github."
 
 (defun browse-at-remote/file-url (filename &optional start end)
   "Return the URL to browse FILENAME from lines START to END. "
-  (let* ((branch (vc-git-working-revision filename))
+  (let* ((remote-ref (browse-at-remote/remote-ref filename))
+         (remote (car remote-ref))
+         (ref (cdr remote-ref))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
-         (target-repo (browse-at-remote/get-url-from-origin (browse-at-remote/get-origin)))
+         (target-repo (browse-at-remote/get-url-from-remote remote))
          (remote-type (browse-at-remote/get-remote-type target-repo))
          (repo-url (cdr target-repo))
          (url-formatter (browse-at-remote/get-formatter 'region-url remote-type))
@@ -189,7 +210,7 @@ Currently the same as for github."
     (unless url-formatter
       (error (format "Origin repo parsing failed: %s" repo-url)))
 
-    (funcall url-formatter repo-url branch relname
+    (funcall url-formatter repo-url ref relname
              (if start-line start-line)
              (if (and end-line (not (equal start-line end-line))) end-line))))
 
