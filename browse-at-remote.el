@@ -103,9 +103,12 @@
 
 (defun browse-at-remote/get-remote-type-from-config ()
   "Get remote type from current repo."
+  (browse-at-remote/get-from-config "browseAtRemote.type"))
+
+(defun browse-at-remote/get-from-config (key)
   (with-temp-buffer
-    (vc-git--call t "config" "--get" "browseAtRemote.type")
-    (s-replace "\n" "" (buffer-string))))
+    (vc-git--call t "config" "--get" key)
+    (s-trim (buffer-string))))
 
 (defun browse-at-remote/get-remote-type (target-repo)
   (or
