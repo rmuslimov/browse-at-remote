@@ -1,15 +1,16 @@
 EMACS ?= emacs
 CASK ?= cask
 
-Install:
+.PHONY: test compile install clean
+
+install:
 	${CASK} install
 
-.PHONY: test
-test:
+test: clean
 	${CASK} exec ert-runner
 
 compile:
 	${CASK} build
 
-clean-elc:
+clean:
 	rm -f browse-at-remote.elc
