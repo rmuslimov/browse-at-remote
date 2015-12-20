@@ -208,7 +208,7 @@ Currently the same as for github."
      (save-excursion
        (save-restriction
          (widen)
-         (goto-char (point-min))
+         (goto-char ( line-beginning-position))
          (search-forward " ")
          (buffer-substring-no-properties (line-beginning-position) (- (point) 1))))))
 
