@@ -91,7 +91,11 @@ When nil, uses the commit hash. The contents will never change."
 
 Returns (REMOTE-URL . REF) or nil, if the local branch doesn't track a remote."
   ;; Check if current state is not detached and tracks remote branch
-  (setq local-branch (vc-git-working-revision (or filename ".")))
+  (setq local-branch
+	(if (fboundp 'vc-git--symbolic-ref)
+	    (vc-git--symbolic-ref (or filename "."))
+	  (vc-git-working-revision (or filename "."))))
+
   (let* ((remote (and local-branch (browse-at-remote/get-from-config
                                     (format "branch.%s.remote" local-branch))))
          (remote (when remote (browse-at-remote/get-remote-url remote)))
