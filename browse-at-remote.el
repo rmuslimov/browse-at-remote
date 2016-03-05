@@ -87,28 +87,58 @@ When nil, uses the commit hash. The contents will never change."
     (cons domain (format "%s://%s/%s" proto domain slug))))
 
 (defun browse-at-remote/remote-ref (&optional filename)
-  "Return the remote & commit ref which FILENAME is in.
+  "Return (REMOTE-URL . REF) which contains FILENAME.
+Returns nil if no appropriate remote or ref can be found."
+  (let ((local-branch (browse-at-remote/get-local-branch))
+        (revision (if (fboundp 'vc-git--symbolic-ref)
+                           (vc-git--symbolic-ref (or filename "."))
+                         (vc-git-working-revision (or filename "."))))
+        remote-branch
+        remote-name)
+    ;; If we're on a branch, try to find a corresponding remote
+    ;; branch.
+    (if local-branch
+      (let ((remote-and-branch (browse-at-remote/get-remote-branch local-branch)))
+        (setq remote-name (car remote-and-branch))
+        (setq remote-branch (cdr remote-and-branch))))
+    ;; Otherwise, we have a detached head. Choose a remote
+    ;; arbitrarily.
+    (setq remote-name (car (browse-at-remote/get-remotes)))
 
-Returns (REMOTE-URL . REF) or nil, if the local branch doesn't track a remote."
-  ;; Check if current state is not detached and tracks remote branch
-  (setq local-branch
-	(if (fboundp 'vc-git--symbolic-ref)
-	    (vc-git--symbolic-ref (or filename "."))
-	  (vc-git-working-revision (or filename "."))))
+    (when remote-name
+      (cons
+       (browse-at-remote/get-remote-url remote-name)
+       (if (and browse-at-remote/prefer-symbolic remote-branch)
+           ;; If the user has requested an URL with a branch name, and we
+           ;; have a remote branch, use that.
+           remote-branch
+         ;; Otherwise, just use the commit hash.
+         revision)))))
 
-  (let* ((remote (and local-branch (browse-at-remote/get-from-config
-                                    (format "branch.%s.remote" local-branch))))
-         (remote (when remote (browse-at-remote/get-remote-url remote)))
-         (remote-branch
-          (s-chop-prefix "refs/heads/"
-                         (and local-branch (browse-at-remote/get-from-config
-                                            (format "branch.%s.merge" local-branch))))))
-    (unless (and (string= remote "")
-                 (string= remote-branch ""))
-      (cons remote
-            (if (not browse-at-remote/prefer-symbolic)
-                (vc-git--rev-parse "HEAD")
-              remote-branch)))))
+(defun browse-at-remote/get-local-branch ()
+  "Return the name of the current local branch name.
+If HEAD is detached, return nil."
+  ;; Based on http://stackoverflow.com/a/1593487/509706
+  (with-temp-buffer
+    (let ((exit-code (vc-git--call t "symbolic-ref" "HEAD")))
+      (when (zerop exit-code)
+        (s-chop-prefix "refs/heads/"
+                       (s-trim (buffer-string)))))))
+
+(defun browse-at-remote/get-remote-branch (local-branch)
+  "If LOCAL-BRANCH is tracking a remote branch, return
+\(REMOTE-NAME . REMOTE-BRANCH-NAME). Returns nil otherwise."
+  (let ((remote-and-branch
+         (vc-git--run-command-string
+          nil "rev-parse"
+          "--symbolic-full-name"
+          "--abbrev-ref"
+          (format "%s@{upstream}" local-branch))))
+    ;; `remote-and-branch' is of the form "origin/master"
+    (when remote-and-branch
+      ;; Split into two-item list, then convert to a pair.
+      (apply #'cons
+             (s-split-up-to "/" (s-trim remote-and-branch) 1)))))
 
 (defun browse-at-remote/get-remote-url (remote)
   "Get URL of REMOTE from current repo."
