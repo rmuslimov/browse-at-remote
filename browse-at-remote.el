@@ -100,10 +100,10 @@ Returns nil if no appropriate remote or ref can be found."
     (if local-branch
       (let ((remote-and-branch (browse-at-remote/get-remote-branch local-branch)))
         (setq remote-name (car remote-and-branch))
-        (setq remote-branch (cdr remote-and-branch))))
+        (setq remote-branch (cdr remote-and-branch)))
     ;; Otherwise, we have a detached head. Choose a remote
     ;; arbitrarily.
-    (setq remote-name (car (browse-at-remote/get-remotes)))
+    (setq remote-name (car (browse-at-remote/get-remotes))))
 
     (when remote-name
       (cons
