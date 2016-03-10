@@ -76,6 +76,7 @@ Contributors:
 - `@env0der`_
 - `@ben`_
 - `@duff`_
+- `@Wilfred`_
 
 
 Changelog:
@@ -106,6 +107,7 @@ TODO:
 
 
 .. _`@env0der`: https://github.com/env0der
+.. _`@Wilfred`: https://github.com/Wilfred
 .. _`@ben`: https://github.com/ben
 .. _`@duff`: https://github.com/duff
 .. _`@ieure`: https://github.com/ieure
