@@ -66,7 +66,7 @@ When nil, uses the commit hash. The contents will never change."
 
 (defun browse-at-remote/parse-git-prefixed (remote-url)
   "Extract domain and slug from REMOTE-URL like git@..."
-  (cdr (s-match "git@\\([a-z.]+\\):\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
+  (cdr (s-match "git\\(?:@\\|://\\)\\([a-z.]+\\)\\(?::\\|/\\)\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
 
 (defun browse-at-remote/parse-https-prefixed (remote-url)
   "Extract domain and slug from REMOTE-URL like https://.... or http://...."
