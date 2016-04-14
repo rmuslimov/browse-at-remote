@@ -135,10 +135,14 @@ If HEAD is detached, return nil."
           "--abbrev-ref"
           (format "%s@{upstream}" local-branch))))
     ;; `remote-and-branch' is of the form "origin/master"
-    (when remote-and-branch
+    (if remote-and-branch
       ;; Split into two-item list, then convert to a pair.
       (apply #'cons
-             (s-split-up-to "/" (s-trim remote-and-branch) 1)))))
+             (s-split-up-to "/" (s-trim remote-and-branch) 1))
+
+      ;; Ask user if worst case (TODO: replace with competing-read here)
+      (let ((remote-branch (read-string "Select remote branch: ")))
+        (cons (car (browse-at-remote/get-remotes)) remote-branch)))))
 
 (defun browse-at-remote/get-remote-url (remote)
   "Get URL of REMOTE from current repo."
