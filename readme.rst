@@ -82,6 +82,10 @@ Contributors:
 Changelog:
 --------
 
+0.8.0
+*****
+Drop clojure-style function namings. Add abbrev methods like `bar-browse` and `bar-to-clipoboard` (where `bar` is browse-at-remote abbrev.)
+
 0.7.0
 *****
 Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/browse`.
