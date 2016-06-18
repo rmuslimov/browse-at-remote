@@ -306,20 +306,20 @@ Currently the same as for github."
 (defun browse-at-remote-kill ()
   "Add the URL of the current file to the kill ring.
 
-Works like `browse-at-remote-browse', but puts the address in the
+Works like `browse-at-remote', but puts the address in the
 kill ring instead of opening it with `browse-url'."
   (interactive)
   (kill-new (browse-at-remote-get-url)))
 
 ;;;###autoload
-(defalias 'bar-browse 'browse-at-remote-browse
+(defalias 'bar-browse 'browse-at-remote
   "Browse the current file with `browse-url'.")
 
 ;;;###autoload
 (defalias 'bar-to-clipboard 'browse-at-remote-kill
   "Add the URL of the current file to the kill ring.
 
-Works like `browse-at-remote-browse', but puts the address in the
+Works like `browse-at-remote', but puts the address in the
 kill ring instead of opening it with `browse-url'.")
 
 (provide 'browse-at-remote)
