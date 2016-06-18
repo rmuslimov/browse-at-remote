@@ -43,7 +43,7 @@ Usage:
 
    or::
 
-     M-x bar-remote
+     M-x bar-browse
 
    .. image:: http://i.imgur.com/rmAky8e.png
 
