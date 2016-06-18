@@ -27,7 +27,7 @@ Simply add this package to your emacs path, and add to ``.emacs``,::
 
 Active keybindings for ``browse-at-remote`` function:::
 
-  (global-set-key (kbd "C-c g g") 'browse-at-remote/browse)
+  (global-set-key (kbd "C-c g g") 'browse-at-remote)
 
 If your repository is hosted on GitHub enterprise, you should add following setting to its config:::
 
@@ -39,7 +39,11 @@ Usage:
 
 1. Call function from emacs buffer::
 
-     M-x browse-at-remote/browse
+     M-x browse-at-remote
+
+   or::
+
+     M-x bar-remote
 
    .. image:: http://i.imgur.com/rmAky8e.png
 
@@ -88,7 +92,7 @@ Drop clojure-style function namings. Add abbrev methods like `bar-browse` and `b
 
 0.7.0
 *****
-Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/browse`.
+Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/browse`. (renamed in 0.8.0 to `bar-browse`)
 
 0.6.0
 *****
@@ -102,7 +106,7 @@ Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/brow
 0.4.0
 *****
 
-- Function `browse-at-remote/to-clipboard` were added
+- Function `browse-at-remote/to-clipboard` were added (renamed in 0.8.0 to `bar-to-clibpoard`)
 
 TODO:
 -----
