@@ -128,11 +128,20 @@ If HEAD is detached, return nil."
   "If LOCAL-BRANCH is tracking a remote branch, return
 \(REMOTE-NAME . REMOTE-BRANCH-NAME). Returns nil otherwise."
   (let ((remote-and-branch
-         (vc-git--run-command-string
-          nil "rev-parse"
-          "--symbolic-full-name"
-          "--abbrev-ref"
-          (format "%s@{upstream}" local-branch))))
+         ;; Try pushRemote first
+         (let ((push-remote (vc-git--run-command-string
+                             nil "config"
+                             (format "branch.%s.pushRemote" local-branch))))
+           (if push-remote
+               (format "%s/%s" (s-trim push-remote) local-branch)
+
+             ;; If there's no pushRemote, fall back to upstream
+             (vc-git--run-command-string
+              nil "rev-parse"
+              "--symbolic-full-name"
+              "--abbrev-ref"
+              (format "%s@{upstream}" local-branch))
+             ))))
     ;; `remote-and-branch' is of the form "origin/master"
     (if remote-and-branch
       ;; Split into two-item list, then convert to a pair.
