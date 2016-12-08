@@ -90,9 +90,10 @@ When nil, uses the commit hash. The contents will never change."
   "Return (REMOTE-URL . REF) which contains FILENAME.
 Returns nil if no appropriate remote or ref can be found."
   (let ((local-branch (browse-at-remote--get-local-branch))
-        (revision (if (fboundp 'vc-git--symbolic-ref)
-                           (vc-git--symbolic-ref (or filename "."))
-                         (vc-git-working-revision (or filename "."))))
+        (revision (if (and (fboundp 'vc-git--symbolic-ref)
+                           browse-at-remote-prefer-symbolic)
+                      (vc-git--symbolic-ref (or filename "."))
+                    (vc-git-working-revision (or filename "."))))
         remote-branch
         remote-name)
     ;; If we're on a branch, try to find a corresponding remote
