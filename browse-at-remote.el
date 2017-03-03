@@ -206,10 +206,10 @@ If HEAD is detached, return nil."
   "Commit URL formatted for github"
   (format "%s/commit/%s" repo-url commithash))
 
-(defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart _lineend)
+(defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"
   (cond
-   (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
+   (linestart (format "%s/src/%s/%s#cl-%d:%d" repo-url location filename linestart lineend))
    (t (format "%s/src/%s/%s" repo-url location filename))))
 
 (defun browse-at-remote--format-commit-url-as-bitbucket (repo-url commithash)
