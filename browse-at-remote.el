@@ -79,6 +79,7 @@ When nil, uses the commit hash. The contents will never change."
   (let* ((parsed
           (cond
            ((s-starts-with? "git" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
+           ((s-starts-with? "ssh" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
            ((s-starts-with? "http" remote-url) (browse-at-remote--parse-https-prefixed remote-url))))
          (proto
           (if (s-starts-with? "http:" remote-url) "http" "https"))
