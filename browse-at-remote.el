@@ -36,7 +36,7 @@
 (require 'vc-git)
 
 (defgroup browse-at-remote nil
-  "Open target on github/gitlab/bitbucket"
+  "Open target on github/gitlab/bitbucket/stash"
   :prefix "browse-at-remote-"
   :group 'applications)
 
@@ -180,7 +180,7 @@ If HEAD is detached, return nil."
   (or
    (let* ((domain (car target-repo))
          (remote-type-from-config (browse-at-remote--get-remote-type-from-config)))
-    (if (member remote-type-from-config '("github" "bitbucket" "gitlab"))
+    (if (member remote-type-from-config '("github" "bitbucket" "gitlab" "stash"))
         remote-type-from-config
       (cl-loop for pt in browse-at-remote-remote-type-domains
                when (string= (car pt) domain)
@@ -215,6 +215,28 @@ If HEAD is detached, return nil."
 (defun browse-at-remote--format-commit-url-as-bitbucket (repo-url commithash)
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
+
+(defun browse-at-remote--fix-repo-url-stash (repo-url)
+  "Inserts 'projects' and 'repos' in #repo-url"
+	(let* ((reversed-url (reverse (split-string repo-url "/")))
+         (project (car reversed-url))
+         (repo (nth 1 reversed-url)))
+    (string-join (reverse (append (list project "repos" repo "projects") (nthcdr 2 reversed-url))) "/")))
+
+(defun browse-at-remote--format-region-url-as-stash (repo-url location filename &optional linestart lineend)
+  "URL formatted for stash"
+	(let* ((branch (cond
+                  ((string= location "master") "")
+                  (t (string-join (list "?at=refs%2Fheads%2F" location)))))
+         (lines (cond
+                 (lineend (format "#%d-%d" linestart lineend))
+                 (linestart (format "#%d" linestart))
+                 (t ""))))
+    (format "%s/browse/%s%s%s" (browse-at-remote--fix-repo-url-stash repo-url) filename branch lines)))
+
+(defun browse-at-remote--format-commit-url-as-stash (repo-url commithash)
+  "Commit URL formatted for stash"
+  (format "%s/commits/%s" (browse-at-remote--fix-repo-url-stash repo-url) commithash))
 
 (defun browse-at-remote--format-region-url-as-gitlab (repo-url location filename &optional linestart lineend)
   "URL formatted for gitlab.

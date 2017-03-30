@@ -33,6 +33,10 @@ If your repository is hosted on GitHub enterprise, you should add following sett
 
   git config --add browseAtRemote.type "github"
 
+For private Stash repitory use command:::
+
+  git config --add browseAtRemote.type "stash"
+
 
 Usage:
 ------
