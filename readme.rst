@@ -85,10 +85,15 @@ Contributors:
 - `@ben`_
 - `@duff`_
 - `@Wilfred`_
+- `@yauhen-l`_
 
 
 Changelog:
 --------
+
+0.9.0
+*****
+Minor fixes, added Stash (bitbucket support) by `@yauhen-l`_.
 
 0.8.0
 *****
