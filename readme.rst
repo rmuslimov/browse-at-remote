@@ -4,7 +4,7 @@
 browse-at-remote.el
 ===================
 
-This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket* from Emacs. It supports various kind of emacs buffer, like:
+This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket*/*stash* from Emacs. It supports various kind of emacs buffer, like:
 
 - file buffer
 - dired buffer
