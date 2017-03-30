@@ -58,7 +58,7 @@
 
 When t, uses the branch name, if available. This generates easier to
 read URLs, but for long-lived links, the content of the linked file
-may change, producing link rot.
+may change, producing link root.
 
 When nil, uses the commit hash. The contents will never change."
   :type 'boolean
@@ -304,7 +304,7 @@ Currently the same as for github."
      (save-excursion
        (save-restriction
          (widen)
-         (goto-char ( line-beginning-position))
+         (goto-char (line-beginning-position))
          (search-forward " ")
          (buffer-substring-no-properties (line-beginning-position) (- (point) 1))))))
 
