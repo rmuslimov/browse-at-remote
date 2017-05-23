@@ -308,8 +308,8 @@ Currently the same as for github."
          (search-forward " ")
          (buffer-substring-no-properties (line-beginning-position) (- (point) 1))))))
 
-   ;; magit-commit-mode
-   ((eq major-mode 'magit-commit-mode)
+   ;; magit-commit-mode and magit-revision-mode
+   ((or (eq major-mode 'magit-commit-mode) (eq major-mode 'magit-revision-mode))
     (save-excursion
       (goto-char (point-min))
       (let* ((first-line
