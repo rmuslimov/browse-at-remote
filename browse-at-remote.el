@@ -213,7 +213,7 @@ If HEAD is detached, return nil."
    ((and linestart lineend)
     (format "%s/src/%s/%s#cl-%d:%d" repo-url location filename linestart lineend))
    (linestart (format "%s/src/%s/%s#cl-%d" repo-url location filename linestart))
-   (t (format "%s/tree/%s/%s" repo-url location filename))))
+   (t (format "%s/src/%s/%s" repo-url location filename))))
 
 (defun browse-at-remote--format-commit-url-as-bitbucket (repo-url commithash)
   "Commit URL formatted for bitbucket"
