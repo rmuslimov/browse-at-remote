@@ -66,21 +66,17 @@ When nil, uses the commit hash. The contents will never change."
 
 (defun browse-at-remote--parse-git-prefixed (remote-url)
   "Extract domain and slug from REMOTE-URL like git@... or git://..."
-  (cdr (s-match "git\\(?:@\\|://\\)\\([a-z.]+\\)\\(?::\\|/\\)\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
+  (cdr (s-match "^\\(?:\\(?:ssh\\|https\\)://\\)?[a-z]+@\\([a-z.]+\\)\\(?::\\|/\\)\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
 
 (defun browse-at-remote--parse-https-prefixed (remote-url)
-  "Extract domain and slug from REMOTE-URL like https://.... or http://...."
-  (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" remote-url)))
-    (list (nth 1 matches)
-          (file-name-sans-extension (nth 2 matches)))))
+  "Extract domain and slug from REMOTE-URL like https://... or ssh://..."
+  (cdr (s-match "^\\(?:ssh\\|https\\)://?\\([a-z.]+\\(?::[0-9]+\\)?\\)/\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
 
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return (DOMAIN . URL) from REMOTE-URL."
-  (let* ((parsed
-          (cond
-           ((s-starts-with? "git" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
-           ((s-starts-with? "ssh" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
-           ((s-starts-with? "http" remote-url) (browse-at-remote--parse-https-prefixed remote-url))))
+  (let* ((parsed (cond
+                  ((browse-at-remote--parse-https-prefixed remote-url))
+                  ((browse-at-remote--parse-git-prefixed remote-url))))
          (proto
           (if (s-starts-with? "http:" remote-url) "http" "https"))
          (domain (car parsed))
@@ -100,12 +96,12 @@ Returns nil if no appropriate remote or ref can be found."
     ;; If we're on a branch, try to find a corresponding remote
     ;; branch.
     (if local-branch
-      (let ((remote-and-branch (browse-at-remote--get-remote-branch local-branch)))
-        (setq remote-name (car remote-and-branch))
-        (setq remote-branch (cdr remote-and-branch)))
-    ;; Otherwise, we have a detached head. Choose a remote
-    ;; arbitrarily.
-    (setq remote-name (car (browse-at-remote--get-remotes))))
+        (let ((remote-and-branch (browse-at-remote--get-remote-branch local-branch)))
+          (setq remote-name (car remote-and-branch))
+          (setq remote-branch (cdr remote-and-branch)))
+      ;; Otherwise, we have a detached head. Choose a remote
+      ;; arbitrarily.
+      (setq remote-name (car (browse-at-remote--get-remotes))))
 
     (when remote-name
       (cons
