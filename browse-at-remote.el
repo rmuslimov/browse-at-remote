@@ -178,16 +178,17 @@ If HEAD is detached, return nil."
     (s-trim (buffer-string))))
 
 (defun browse-at-remote--get-remote-type (target-repo)
-  (or
-   (let* ((domain (car target-repo))
+  (let* ((domain (car target-repo))
          (remote-type-from-config (browse-at-remote--get-remote-type-from-config)))
-    (if (member remote-type-from-config '("github" "bitbucket" "gitlab" "stash"))
-        remote-type-from-config
-      (cl-loop for pt in browse-at-remote-remote-type-domains
-               when (string= (car pt) domain)
-               return (cdr pt))))
+    (or
+     (if (member remote-type-from-config '("github" "bitbucket" "gitlab" "stash"))
+         remote-type-from-config
+       (cl-loop for pt in browse-at-remote-remote-type-domains
+                when (string= (car pt) domain)
+                return (cdr pt)))
 
-   (error (format "Sorry, not sure what to do with repo `%s'" target-repo))))
+     (error (format "Sorry, not sure what to do with domain `%s' (consider adding it to `browse-at-remote-remote-type-domains')"
+                    domain)))))
 
 (defun browse-at-remote--get-formatter (formatter-type remote-type)
   "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
