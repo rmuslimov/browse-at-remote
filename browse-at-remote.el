@@ -50,7 +50,8 @@
                 :value-type (choice
                              (const :tag "GitHub" "github")
                              (const :tag "GitLab" "gitlab")
-                             (const :tag "BitBucket" "bitbucket")))
+                             (const :tag "Bitbucket" "bitbucket")
+                             (const :tag "Stash/BitBucket Server" "stash")))
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
