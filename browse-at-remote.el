@@ -34,6 +34,7 @@
 (require 's)
 (require 'cl-lib)
 (require 'vc-git)
+(require 'url-parse)
 
 (defgroup browse-at-remote nil
   "Open target on github/gitlab/bitbucket/stash"
@@ -64,28 +65,29 @@ When nil, uses the commit hash. The contents will never change."
   :type 'boolean
   :group 'browse-at-remote)
 
-(defun browse-at-remote--parse-git-prefixed (remote-url)
-  "Extract domain and slug from REMOTE-URL like git@... or git://..."
-  (cdr (s-match "[git\\|ssh]\\(?:@\\|://\\)\\([a-z.]+\\)\\(?::\\|/\\)\\([a-z0-9_.-]+/[a-z0-9_.-]+?\\)\\(?:\.git\\)?$" remote-url)))
-
-(defun browse-at-remote--parse-https-prefixed (remote-url)
-  "Extract domain and slug from REMOTE-URL like https://.... or http://...."
-  (let ((matches (s-match "https?://\\(?:[a-z]+@\\)?\\([a-z0-9.-]+\\)/\\([a-z0-9_-]+/[a-z0-9_.-]+\\)" remote-url)))
-    (list (nth 1 matches)
-          (file-name-sans-extension (nth 2 matches)))))
-
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return (DOMAIN . URL) from REMOTE-URL."
-  (let* ((parsed
-          (cond
-           ((s-starts-with? "git" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
-           ((s-starts-with? "ssh" remote-url) (browse-at-remote--parse-git-prefixed remote-url))
-           ((s-starts-with? "http" remote-url) (browse-at-remote--parse-https-prefixed remote-url))))
-         (proto
-          (if (s-starts-with? "http:" remote-url) "http" "https"))
-         (domain (car parsed))
-         (slug (nth 1 parsed)))
-    (cons domain (format "%s://%s/%s" proto domain slug))))
+  ;; If the protocol isn't specified, git treats it as an SSH URL.
+  (unless (s-contains-p "://" remote-url)
+    (setq remote-url (concat "ssh://" remote-url)))
+  (let* ((parsed (url-generic-parse-url remote-url))
+         (host (url-host parsed))
+         (port (url-port-if-non-default parsed))
+         (web-proto
+          (if (equal (url-type parsed) "http") "http" "https"))
+         (filename (url-filename parsed)))
+    ;; SSH URLs can contain colons in the host part, e.g. ssh://example.com:foo.
+    (when (s-contains-p ":" host)
+      (let ((parts (s-split ":" host)))
+        (setq host (cl-first parts))
+        (setq filename (concat "/" (cl-second parts) filename))))
+    ;; Drop .git at the end of `remote-url'.
+    (setq filename (s-chop-suffix ".git" filename))
+    ;; Preserve the port.
+    (when port
+      (setq host (format "%s:%d" host port)))
+    (cons host
+          (format "%s://%s%s" web-proto host filename))))
 
 (defun browse-at-remote--remote-ref (&optional filename)
   "Return (REMOTE-URL . REF) which contains FILENAME.

@@ -18,6 +18,14 @@
                  (cons `"github.com" `"https://github.com/someplace/with-dash.el")))
   (should (equal (browse-at-remote--get-url-from-remote "git@github.com:someplace/wi2th-dash.el.git")
                  (cons `"github.com" `"https://github.com/someplace/wi2th-dash.el")))
+  (should (equal (browse-at-remote--get-url-from-remote "ssh://git.example.com:8080/someplace/wi2th-dash.el")
+                 (cons `"git.example.com:8080" `"https://git.example.com:8080/someplace/wi2th-dash.el")))
+  (should (equal (browse-at-remote--get-url-from-remote "ssh://user@git.example.com:8080/someplace/wi2th-dash.el")
+                 (cons `"git.example.com:8080" `"https://git.example.com:8080/someplace/wi2th-dash.el")))
+  (should (equal (browse-at-remote--get-url-from-remote "git+ssh://git.example.com:8080/someplace/wi2th-dash.el")
+                 (cons `"git.example.com:8080" `"https://git.example.com:8080/someplace/wi2th-dash.el")))
+  (should (equal (browse-at-remote--get-url-from-remote "git@gitlab.com:someplace/double-nested/wi2th-dash.el.git")
+                 (cons `"gitlab.com" `"https://gitlab.com/someplace/double-nested/wi2th-dash.el")))
   )
 
 (ert-deftest get-https-repo-url-test ()
@@ -35,6 +43,8 @@
 				 (cons `"github.com" `"https://github.com/with_underscores/pro-digy_underscores.el")))
   (should (equal (browse-at-remote--get-url-from-remote "https://github.com/rmuslimov/browse-at-remote.git")
 				 (cons `"github.com" `"https://github.com/rmuslimov/browse-at-remote")))
+  (should (equal (browse-at-remote--get-url-from-remote "https://gitlab.com/someplace/double-nested/wi2th-dash.el.git")
+                 (cons `"gitlab.com" `"https://gitlab.com/someplace/double-nested/wi2th-dash.el")))
   )
 
 (ert-deftest get-https-repo-url-without-ending ()
