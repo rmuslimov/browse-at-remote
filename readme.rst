@@ -4,7 +4,7 @@
 browse-at-remote.el
 ===================
 
-This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket*/*stash* from Emacs. It supports various kind of emacs buffer, like:
+This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket*/*stash*/*git.savannah.gnu.org* from Emacs. It supports various kind of emacs buffer, like:
 
 - file buffer
 - dired buffer
@@ -29,13 +29,36 @@ Active keybindings for ``browse-at-remote`` function:::
 
   (global-set-key (kbd "C-c g g") 'browse-at-remote)
 
-If your repository is hosted on GitHub enterprise, you should add following setting to its config:::
+Customization
+-------------
 
-  git config --add browseAtRemote.type "github"
+By default `browse-at-remote` knows how to work with popular remote types (github/gitlab..). Knowledge how to work with certain remote-type comes from mapping `browse-at-remote-remote-type-domains`. It defines that `github.com` should be treat in github manner, `bitbucket.org` in bitbucket manner and so on.
+In your development you may have some specific git-url, and `browse-at-remote` will before confuse which remote-type map to your domain.
 
-For private Stash repitory use command:::
+Two solution available:
 
-  git config --add browseAtRemote.type "stash"
+1. In that case you can to customize that. (`M-x customize ... browse-at-remote-remote-type-domains`). For now our package supports next remote-types:
+
+
+   - bitbucket.com
+   - gitlab.com
+   - github.com
+   - Stash
+   - git.savannah.gnu.org
+
+
+2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
+
+     git config --add browseAtRemote.type "github"
+
+or for private Stash repository use command::
+
+     git config --add browseAtRemote.type "stash"
+
+Adding new remote type
+----------------------
+
+You can your own remote if you need - PRs are welcome! Please see good examples here: gnu-savannah-remote_, or stash-remote_.
 
 
 Usage:
@@ -78,18 +101,26 @@ Usage:
    - Press `C-x v g` to call standard vc-annotate
    - Call `browse-at-remote` on target line
 
+
 Contributors:
 -------------
 
+- `@rmuslimov`_
 - `@env0der`_
 - `@ben`_
 - `@duff`_
 - `@Wilfred`_
 - `@yauhen-l`_
+- `@ieure`_
+- `@wigust`_
 
 
 Changelog:
 --------
+
+0.10.0
+******
+New remote type added **git.savannah.gnu.org** by `@wigust`_.
 
 0.9.0
 *****
@@ -123,9 +154,13 @@ TODO:
 - Add mercurial support
 
 
+.. _`@rmuslimov`: https://github.com/rmuslimov
 .. _`@env0der`: https://github.com/env0der
 .. _`@Wilfred`: https://github.com/Wilfred
 .. _`@ben`: https://github.com/ben
 .. _`@duff`: https://github.com/duff
 .. _`@ieure`: https://github.com/ieure
 .. _`@yauhen-l`: https://github.com/yauhen-l
+.. _`@wigust`: https://github.com/wigust
+.. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
+.. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files

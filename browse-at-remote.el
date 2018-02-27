@@ -3,7 +3,7 @@
 ;; Copyright © 2015-2016 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.9.0
+;; Version:    0.10.0
 ;; Keywords:   github, gitlab, bitbucket, convenience
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
@@ -37,7 +37,7 @@
 (require 'url-parse)
 
 (defgroup browse-at-remote nil
-  "Open target on github/gitlab/bitbucket/stash"
+  "Open target on github/gitlab/bitbucket/stash/etc."
   :prefix "browse-at-remote-"
   :group 'applications)
 
@@ -53,7 +53,8 @@
                              (const :tag "GitHub" "github")
                              (const :tag "GitLab" "gitlab")
                              (const :tag "Bitbucket" "bitbucket")
-                             (const :tag "Stash/BitBucket Server" "stash")))
+                             (const :tag "Stash/Bitbucket Server" "stash")
+                             (const :tag "git.savannah.gnu.org" "gnu")))
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -185,7 +186,7 @@ If HEAD is detached, return nil."
   (let* ((domain (car target-repo))
          (remote-type-from-config (browse-at-remote--get-remote-type-from-config)))
     (or
-     (if (member remote-type-from-config '("github" "bitbucket" "gitlab" "stash"))
+     (if (s-present? remote-type-from-config)
          remote-type-from-config
        (cl-loop for pt in browse-at-remote-remote-type-domains
                 when (string= (car pt) domain)
