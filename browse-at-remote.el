@@ -84,6 +84,9 @@ When nil, uses the commit hash. The contents will never change."
       (let ((parts (s-split ":" host)))
         (setq host (cl-first parts))
         (setq filename (concat "/" (cl-second parts) filename))))
+    ;; when protocol is not http(s) port must always be stripped
+    (unless (member (url-type parsed) '("http" "https"))
+      (setq port nil))
     ;; Drop .git at the end of `remote-url'.
     (setq filename (s-chop-suffix ".git" filename))
     ;; Preserve the port.
