@@ -341,6 +341,10 @@ Currently the same as for github."
              (commithash (car (s-split " " first-line))))
         (browse-at-remote--commit-url commithash))))
 
+   ;; log-view-mode
+   ((derived-mode-p 'log-view-mode)
+    (browse-at-remote--commit-url (cadr (log-view-current-entry))))
+
    ;; We're inside of file-attached buffer with active region
    ((and buffer-file-name (use-region-p))
     (let ((point-begin (min (region-beginning) (region-end)))
