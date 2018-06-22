@@ -8,7 +8,7 @@ This package is easiest way to open particular link on *github*/*gitlab*/*bitbuc
 
 - file buffer
 - dired buffer
-- magit-mode buffers represinting code
+- magit-mode buffers representing code
 - vc-annotate mode (use get there by pressing ``C-x v g`` by default)
 
 Installation:
