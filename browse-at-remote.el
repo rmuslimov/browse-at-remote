@@ -45,7 +45,8 @@
   '(("bitbucket.org" ."bitbucket")
     ("github.com" . "github")
     ("gitlab.com" . "gitlab")
-    ("git.savannah.gnu.org" . "gnu"))
+    ("git.savannah.gnu.org" . "gnu")
+    ("gist.github.com" . "gist"))
   "Alist of domain patterns to remote types."
 
   :type '(alist :key-type (string :tag "Domain")
@@ -54,7 +55,8 @@
                              (const :tag "GitLab" "gitlab")
                              (const :tag "Bitbucket" "bitbucket")
                              (const :tag "Stash/Bitbucket Server" "stash")
-                             (const :tag "git.savannah.gnu.org" "gnu")))
+                             (const :tag "git.savannah.gnu.org" "gnu")
+                             (const :tag "gist.github.com" "gist")))
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -245,6 +247,24 @@ If HEAD is detached, return nil."
 (defun browse-at-remote--format-commit-url-as-bitbucket (repo-url commithash)
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
+
+(defun browse-at-remote--format-region-url-as-gist (repo-url location filename &optional linestart lineend)
+  "URL formatted for gist."
+  (concat
+   (format "%s#file-%s" repo-url
+           (replace-regexp-in-string "[^a-z0-9_]+" "-" filename))
+   (cond
+    ((and linestart lineend) (format "-L%d-L%d" linestart lineend))
+    (linestart (format "-L%d" linestart))
+    (t ""))))
+
+(defun browse-at-remote--format-commit-url-as-gist (repo-url commithash)
+  "Commit URL formatted for gist"
+  (cond
+   ((equal commithash "master")
+    repo-url)
+   (t
+    (format "%s/%s" repo-url commithash))))
 
 (defun browse-at-remote--fix-repo-url-stash (repo-url)
   "Inserts 'projects' and 'repos' in #repo-url"
