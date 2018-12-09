@@ -46,6 +46,7 @@ Two solution available:
    - Stash
    - git.savannah.gnu.org
    - gist.github.com
+   - Phabricator
 
 
 2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
