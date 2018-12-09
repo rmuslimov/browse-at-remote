@@ -115,10 +115,14 @@ Contributors:
 - `@ieure`_
 - `@wigust`_
 - `@CyberShadow`_
-
+- `@kuba-orlik`_
 
 Changelog:
 --------
+
+0.12.0
+******
+New remote type added **Phabricator** by `@kuba-orlik`_.
 
 0.11.0
 ******
@@ -169,5 +173,6 @@ TODO:
 .. _`@yauhen-l`: https://github.com/yauhen-l
 .. _`@wigust`: https://github.com/wigust
 .. _`@CyberShadow`: https://github.com/CyberShadow
+.. _`@kuba-orlik`: https://github.com/kuba-orlik
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files
