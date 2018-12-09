@@ -45,6 +45,7 @@ Two solution available:
    - github.com
    - Stash
    - git.savannah.gnu.org
+   - gist.github.com
 
 
 2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
@@ -113,10 +114,15 @@ Contributors:
 - `@yauhen-l`_
 - `@ieure`_
 - `@wigust`_
+- `@CyberShadow`_
 
 
 Changelog:
 --------
+
+0.11.0
+******
+New remote type added **gist.github.com** by `@CyberShadow`_.
 
 0.10.0
 ******
@@ -162,5 +168,6 @@ TODO:
 .. _`@ieure`: https://github.com/ieure
 .. _`@yauhen-l`: https://github.com/yauhen-l
 .. _`@wigust`: https://github.com/wigust
+.. _`@CyberShadow`: https://github.com/CyberShadow
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files
