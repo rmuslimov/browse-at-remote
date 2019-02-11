@@ -372,10 +372,13 @@ Currently the same as for github."
    ;; magit-commit-mode and magit-revision-mode
    ((or (eq major-mode 'magit-commit-mode) (eq major-mode 'magit-revision-mode))
     (save-excursion
+      ;; Search for the SHA1 on the first line.
       (goto-char (point-min))
       (let* ((first-line
               (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-             (commithash (car (s-split " " first-line))))
+             (commithash (cl-loop for word in (s-split " " first-line)
+                                  when (eq 40 (length word))
+                                  return word)))
         (browse-at-remote--commit-url commithash))))
 
    ;; log-view-mode
