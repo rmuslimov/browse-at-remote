@@ -118,9 +118,15 @@ Contributors:
 - `@wigust`_
 - `@CyberShadow`_
 - `@kuba-orlik`_
+- `@jwhitbeck`_
+- `@microamp`_
 
 Changelog:
 --------
+
+0.13.0
+******
+New remote type added **Sourcehut** by `@microamp`_.
 
 0.12.0
 ******
@@ -176,5 +182,7 @@ TODO:
 .. _`@wigust`: https://github.com/wigust
 .. _`@CyberShadow`: https://github.com/CyberShadow
 .. _`@kuba-orlik`: https://github.com/kuba-orlik
+.. _`@jwhitbeck`: https://github.com/jwhitbeck
+.. _`@microamp`: https://github.com/microamp
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files
