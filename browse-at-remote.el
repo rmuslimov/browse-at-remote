@@ -1,10 +1,10 @@
-;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phabricator page from Emacs -*- lexical-binding:t -*-
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phabricator/sourcehut page from Emacs -*- lexical-binding:t -*-
 
 ;; Copyright © 2015-2018 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.12.0
-;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator
+;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -46,7 +46,8 @@
     ("github.com" . "github")
     ("gitlab.com" . "gitlab")
     ("git.savannah.gnu.org" . "gnu")
-    ("gist.github.com" . "gist"))
+    ("gist.github.com" . "gist")
+    ("git.sr.ht" . "sourcehut"))
   "Alist of domain patterns to remote types."
 
   :type '(alist :key-type (string :tag "Domain")
@@ -57,7 +58,8 @@
                              (const :tag "Stash/Bitbucket Server" "stash")
                              (const :tag "git.savannah.gnu.org" "gnu")
                              (const :tag "Phabricator" "phabricator")
-                             (const :tag "gist.github.com" "gist")))
+                             (const :tag "gist.github.com" "gist")
+                             (const :tag "sourcehut" "sourcehut")))
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -311,9 +313,21 @@ The only difference from github is format of region: L1-2 instead of L1-L2"
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
+(defun browse-at-remote--format-region-url-as-sourcehut (repo-url location filename &optional linestart lineend)
+  "URL formatted for sourcehut."
+  (cond
+   ((and linestart lineend)
+    (format "%s/tree/%s/%s#L%d-%d" repo-url location filename linestart lineend))
+   (linestart (format "%s/tree/%s/%s#L%d" repo-url location filename linestart))
+   (t (format "%s/tree/%s/%s" repo-url location filename))))
+
 (defun browse-at-remote--format-commit-url-as-gitlab (repo-url commithash)
   "Commit URL formatted for gitlab.
 Currently the same as for github."
+  (format "%s/commit/%s" repo-url commithash))
+
+(defun browse-at-remote--format-commit-url-as-sourcehut (repo-url commithash)
+  "Commit URL formatted for sourcehut."
   (format "%s/commit/%s" repo-url commithash))
 
 (defun browse-at-remote--commit-url (commithash)
