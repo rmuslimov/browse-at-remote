@@ -1,10 +1,10 @@
-;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phabricator page from Emacs -*- lexical-binding:t -*-
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phabricator/sourcehut page from Emacs -*- lexical-binding:t -*-
 
 ;; Copyright © 2015-2018 Rustem Muslimov
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.12.0
-;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator
+;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify

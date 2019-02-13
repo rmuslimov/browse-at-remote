@@ -4,7 +4,7 @@
 browse-at-remote.el
 ===================
 
-This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket*/*stash*/*git.savannah.gnu.org* from Emacs. It supports various kind of emacs buffer, like:
+This package is easiest way to open particular link on *github*/*gitlab*/*bitbucket*/*stash*/*git.savannah.gnu.org*/*sourcehut* from Emacs. It supports various kind of emacs buffer, like:
 
 - file buffer
 - dired buffer
@@ -47,6 +47,7 @@ Two solution available:
    - git.savannah.gnu.org
    - gist.github.com
    - Phabricator
+   - git.sr.ht
 
 
 2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
