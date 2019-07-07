@@ -54,7 +54,7 @@ Two solution available:
 
      git config --add browseAtRemote.type "github"
 
-or for private Stash repository use command::
+   or for private Stash repository use command::
 
      git config --add browseAtRemote.type "stash"
 
