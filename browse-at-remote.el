@@ -408,8 +408,7 @@ Currently the same as for github."
        (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))))
 
    ;; We're inside of file-attached buffer without region
-   (buffer-file-name
-    (browse-at-remote--file-url (buffer-file-name) (point)))
+   (buffer-file-name (browse-at-remote--file-url (buffer-file-name)))
 
    (t (error "Sorry, I'm not sure what to do with this."))))
 
