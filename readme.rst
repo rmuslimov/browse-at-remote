@@ -48,6 +48,7 @@ Two solution available:
    - gist.github.com
    - Phabricator
    - git.sr.ht
+   - pagure.io
 
 
 2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
@@ -120,6 +121,7 @@ Contributors:
 - `@kuba-orlik`_
 - `@jwhitbeck`_
 - `@microamp`_
+- `@FrostyX`_
 
 Changelog:
 --------
@@ -184,5 +186,6 @@ TODO:
 .. _`@kuba-orlik`: https://github.com/kuba-orlik
 .. _`@jwhitbeck`: https://github.com/jwhitbeck
 .. _`@microamp`: https://github.com/microamp
+.. _`@FrostyX`: https://github.com/FrostyX
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files

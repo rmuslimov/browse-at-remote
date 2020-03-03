@@ -47,7 +47,9 @@
     ("gitlab.com" . "gitlab")
     ("git.savannah.gnu.org" . "gnu")
     ("gist.github.com" . "gist")
-    ("git.sr.ht" . "sourcehut"))
+    ("git.sr.ht" . "sourcehut")
+    ("pagure.io" . "pagure")
+    ("src.fedoraproject.org" . "pagure"))
   "Alist of domain patterns to remote types."
 
   :type '(alist :key-type (string :tag "Domain")
@@ -59,7 +61,8 @@
                              (const :tag "git.savannah.gnu.org" "gnu")
                              (const :tag "Phabricator" "phabricator")
                              (const :tag "gist.github.com" "gist")
-                             (const :tag "sourcehut" "sourcehut")))
+                             (const :tag "sourcehut" "sourcehut")
+                             (const :tag "pagure" "pagure")))
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -329,6 +332,23 @@ Currently the same as for github."
 (defun browse-at-remote--format-commit-url-as-sourcehut (repo-url commithash)
   "Commit URL formatted for sourcehut."
   (format "%s/commit/%s" repo-url commithash))
+
+(defun browse-at-remote--format-region-url-as-pagure (repo-url location filename &optional linestart lineend)
+  (let* ((repo-url (s-replace "/forks/" "/fork/" repo-url))
+         (markup_ext (list ".rst" ".mk" ".md" ".markdown"))
+         (markup? (seq-contains (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
+         (filename (cond (markup? (concat filename "?text=True"))
+                         (t filename))))
+    (cond
+     ((and linestart lineend)
+      (format "%s/blob/%s/f/%s#_%d-%d" repo-url location filename linestart lineend))
+     (linestart (format "%s/blob/%s/f/%s#_%d" repo-url location filename linestart))
+     (t (format "%s/blob/%s/f/%s" repo-url location filename)))))
+
+(defun browse-at-remote--format-commit-url-as-pagure (repo-url commithash)
+  "Commit URL formatted for github"
+  (format "%s/commit/%s" repo-url commithash))
+
 
 (defun browse-at-remote--commit-url (commithash)
   "Return the URL to browse COMMITHASH."
