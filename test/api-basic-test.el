@@ -59,3 +59,28 @@
   (should (equal (browse-at-remote--get-url-from-remote "git@github.com:someplace/without-ending")
                                  (cons `"github.com" `"https://github.com/someplace/without-ending")))
   )
+
+(ert-deftest get-repo-url-pagure ()
+  (let ((repo-url "https://pagure.io/copr/copr")
+	(location "master")
+	(filename "frontend/coprs_frontend/manage.py"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-pagure repo-url location filename)
+	"https://pagure.io/copr/copr/blob/master/f/frontend/coprs_frontend/manage.py"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-pagure repo-url location filename 12)
+	"https://pagure.io/copr/copr/blob/master/f/frontend/coprs_frontend/manage.py#_12"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-pagure repo-url location filename 12 14)
+	"https://pagure.io/copr/copr/blob/master/f/frontend/coprs_frontend/manage.py#_12-14"))
+
+      (should (equal
+        (browse-at-remote--format-region-url-as-pagure repo-url location "README.md" 12 14)
+        "https://pagure.io/copr/copr/blob/master/f/README.md?text=True#_12-14"))
+
+      (should (equal
+        (browse-at-remote--format-region-url-as-pagure "https://pagure.io/forks/frostyx/copr/copr" location filename)
+        "https://pagure.io/fork/frostyx/copr/copr/blob/master/f/frontend/coprs_frontend/manage.py"))))
