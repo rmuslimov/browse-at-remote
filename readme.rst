@@ -29,6 +29,10 @@ Active keybindings for ``browse-at-remote`` function:::
 
   (global-set-key (kbd "C-c g g") 'browse-at-remote)
 
+GNU Guix
+********
+
+Run ``guix package -i emacs-browse-at-remote`` then load ``browse-at-remote`` from your Emacs init.
 
 Customization
 -------------
