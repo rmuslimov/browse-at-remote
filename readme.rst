@@ -29,8 +29,12 @@ Active keybindings for ``browse-at-remote`` function:::
 
   (global-set-key (kbd "C-c g g") 'browse-at-remote)
 
+
 Customization
 -------------
+
+Remote types
+************
 
 By default `browse-at-remote` knows how to work with popular remote types (github/gitlab..). Knowledge how to work with certain remote-type comes from mapping `browse-at-remote-remote-type-domains`. It defines that `github.com` should be treat in github manner, `bitbucket.org` in bitbucket manner and so on.
 In your development you may have some specific git-url, and `browse-at-remote` will before confuse which remote-type map to your domain.
@@ -58,6 +62,16 @@ Two solution available:
    or for private Stash repository use command::
 
      git config --add browseAtRemote.type "stash"
+
+Excluding line number if no region is selected
+**********************************************
+
+By default `browse-at-remote` add line number when region is not selected in file attached buffer. If you don't like that and what to see no line information URL, it's possible to disable that by adding:::
+
+  (setq browse-at-remote-add-line-number-if-no-region-selected nil)
+
+Or setting via UI with `M-x customize`.
+
 
 Adding new remote type
 ----------------------
@@ -126,6 +140,11 @@ Contributors:
 Changelog:
 --------
 
+0.14.0
+******
+New remote type added **Pagure** by `@FrostyX`_.
+New configuration option `browse-at-remote-add-line-number-if-no-region-selected` allowing add or not line number when target page open and region initially is not selected.
+
 0.13.0
 ******
 New remote type added **Sourcehut** by `@microamp`_.
@@ -156,17 +175,15 @@ Major refactorings by `@ieure`_. Main function renamed to `browse-at-remote/brow
 
 0.6.0
 *****
-- Added support of Gitlab by `@env0der`_. Thanks!
+Added support of Gitlab by `@env0der`_. Thanks!
 
 0.5.0
 *****
-
-- Added support of Github Enterprice. Special thanks for `@env0der`_ for this feature.
+Added support of Github Enterprice. Special thanks for `@env0der`_ for this feature.
 
 0.4.0
 *****
-
-- Function `browse-at-remote/to-clipboard` were added (renamed in 0.8.0 to `bar-to-clibpoard`)
+Function `browse-at-remote/to-clipboard` were added (renamed in 0.8.0 to `bar-to-clibpoard`)
 
 TODO:
 -----

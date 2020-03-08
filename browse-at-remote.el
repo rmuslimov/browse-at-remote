@@ -1,10 +1,10 @@
 ;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs -*- lexical-binding:t -*-
 
-;; Copyright © 2015-2018 Rustem Muslimov
+;; Copyright © 2015-2020
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.13.0
-;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut
+;; Version:    0.14.0
+;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -73,6 +73,14 @@ read URLs, but for long-lived links, the content of the linked file
 may change, producing link root.
 
 When nil, uses the commit hash. The contents will never change."
+  :type 'boolean
+  :group 'browse-at-remote)
+
+(defcustom browse-at-remote-add-line-number-if-no-region-selected t
+  "Always add line number even if region is not selected in buffer.
+When is option is t, bar-browse adds line number to URL even if region was not selected.
+
+By default is true."
   :type 'boolean
   :group 'browse-at-remote)
 
@@ -428,7 +436,9 @@ Currently the same as for github."
        (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))))
 
    ;; We're inside of file-attached buffer without region
-   (buffer-file-name (browse-at-remote--file-url (buffer-file-name)))
+   (buffer-file-name
+    (let ((line (when browse-at-remote-add-line-number-if-no-region-selected (point))))
+      (browse-at-remote--file-url (buffer-file-name) line)))
 
    (t (error "Sorry, I'm not sure what to do with this."))))
 
