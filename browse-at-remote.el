@@ -84,6 +84,10 @@ By default is true."
   :type 'boolean
   :group 'browse-at-remote)
 
+(defcustom browse-at-remote-use-http nil
+  "List of domains where the web URL should be http."
+  :type '(repeat string))
+
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return (DOMAIN . URL) from REMOTE-URL."
   ;; If the protocol isn't specified, git treats it as an SSH URL.
@@ -99,6 +103,8 @@ By default is true."
     (when (s-contains-p ":" host)
       (let ((parts (s-split ":" host)))
         (setq host (cl-first parts))
+        (when (member host browse-at-remote-use-http)
+          (setq web-proto "http"))
         (setq filename (concat "/" (cl-second parts) filename))))
     ;; when protocol is not http(s) port must always be stripped
     (unless (member (url-type parsed) '("http" "https"))
