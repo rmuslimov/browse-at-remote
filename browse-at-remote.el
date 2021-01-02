@@ -49,6 +49,7 @@
     ("gist.github.com" . "gist")
     ("git.sr.ht" . "sourcehut")
     ("pagure.io" . "pagure")
+    ("vs-ssh.visualstudio.com" . "ado")
     ("src.fedoraproject.org" . "pagure"))
   "Alist of domain patterns to remote types."
 
@@ -59,6 +60,8 @@
                              (const :tag "Bitbucket" "bitbucket")
                              (const :tag "Stash/Bitbucket Server" "stash")
                              (const :tag "git.savannah.gnu.org" "gnu")
+                             ;; TODO
+                             (const :tag "bobo" "ado")
                              (const :tag "Phabricator" "phabricator")
                              (const :tag "gist.github.com" "gist")
                              (const :tag "sourcehut" "sourcehut")
@@ -252,6 +255,48 @@ If HEAD is detached, return nil."
 (defun browse-at-remote--format-commit-url-as-github (repo-url commithash)
   "Commit URL formatted for github"
   (format "%s/commit/%s" repo-url commithash))
+
+(defun browse-at-remote-ado-format-url (repo-url)
+  "Get an ado formatted URL."
+  (let* ((s (split-string repo-url "/")))
+    (format "%s//%s/%s/_git/%s"
+            (nth 0 s)
+            (replace-regexp-in-string "vs-ssh" (nth 4 s) (nth 2 s))
+            (nth 5 s)
+            (nth 6 s)
+            )
+    )
+  )
+
+(defun browse-at-remote--format-region-url-as-ado (repo-url location filename &optional linestart lineend)
+  "URL formatted for ado"
+  (let* (
+         (s (split-string repo-url "/"))
+         (case-fold-search nil)
+         ;; NOTE: I'm not sure what's the meaning of the
+         ;; branch-prefix. In my organisations it is "GB", so I guess
+         ;; it is an acronym.
+         (branch-prefix (replace-regexp-in-string "[a-z]" "" (nth 4 s) t))
+         ;; (branch-prefix "GB")
+         (base-url (format "%s?version=%s%s&path=/%s"
+                           (browse-at-remote-ado-format-url repo-url)
+                           branch-prefix
+                           location
+                           filename))
+         )
+  (cond
+   ((and linestart lineend)
+    (format "%s&line=%d&lineEnd=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart (+ 1 lineend)))
+   (linestart (format "%s&line=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart))
+   (t base-url))
+  )
+  )
+
+(defun browse-at-remote--format-commit-url-as-ado (repo-url commithash)
+  "Commit URL formatted for ado"
+  (error "The ado version of the commit-url is not implemented")
+  ;; (format "%s/commits/%s" repo-url commithash))
+)
 
 (defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"
