@@ -48,8 +48,8 @@
     ("git.savannah.gnu.org" . "gnu")
     ("gist.github.com" . "gist")
     ("git.sr.ht" . "sourcehut")
-    ("pagure.io" . "pagure")
     ("vs-ssh.visualstudio.com" . "ado")
+    ("pagure.io" . "pagure")
     ("src.fedoraproject.org" . "pagure"))
   "Alist of domain patterns to remote types."
 
