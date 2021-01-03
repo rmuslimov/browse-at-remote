@@ -57,6 +57,7 @@ Two solution available:
    - Phabricator
    - git.sr.ht
    - pagure.io
+   - vs-ssh.visualstudio.com
 
 
 2. Set specific remote-type directly in git repo. For example, if your repository is hosted on GitHub enterprise, you should add following setting to its config::
@@ -140,6 +141,7 @@ Contributors:
 - `@jwhitbeck`_
 - `@microamp`_
 - `@FrostyX`_
+- `@legendary-mich`_
 
 Changelog:
 --------
@@ -208,5 +210,6 @@ TODO:
 .. _`@jwhitbeck`: https://github.com/jwhitbeck
 .. _`@microamp`: https://github.com/microamp
 .. _`@FrostyX`: https://github.com/FrostyX
+.. _`@legendary-mich`: https://github.com/legendary-mich
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files
