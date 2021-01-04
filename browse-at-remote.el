@@ -260,7 +260,7 @@ If HEAD is detached, return nil."
   (let* ((s (split-string repo-url "/")))
     (format "%s//%s/%s/_git/%s"
             (nth 0 s)
-            (replace-regexp-in-string "vs-ssh" (nth 4 s) (nth 2 s))
+            (replace-regexp-in-string "^vs-ssh" (nth 4 s) (nth 2 s))
             (nth 5 s)
             (nth 6 s)
             )
@@ -274,7 +274,9 @@ If HEAD is detached, return nil."
          (case-fold-search nil)
          ;; NOTE: I'm not sure what's the meaning of the
          ;; branch-prefix. In my organisations it is "GB", so I guess
-         ;; it is an acronym.
+         ;; it must be an acronym. If that does not work for everyone
+         ;; we can use a global variable instead, or an alist with the
+         ;; names of organizations as keys.
          (branch-prefix (replace-regexp-in-string "[a-z]" "" (nth 4 s) t))
          ;; (branch-prefix "GB")
          (base-url (format "%s?version=%s%s&path=/%s"
