@@ -270,15 +270,10 @@ If HEAD is detached, return nil."
 (defun browse-at-remote--format-region-url-as-ado (repo-url location filename &optional linestart lineend)
   "URL formatted for ado"
   (let* (
-         (s (split-string repo-url "/"))
-         (case-fold-search nil)
          ;; NOTE: I'm not sure what's the meaning of the
-         ;; branch-prefix. In my organisations it is "GB", so I guess
-         ;; it must be an acronym. If that does not work for everyone
-         ;; we can use a global variable instead, or an alist with the
-         ;; names of organizations as keys.
-         (branch-prefix (replace-regexp-in-string "[a-z]" "" (nth 4 s) t))
-         ;; (branch-prefix "GB")
+         ;; branch-prefix. My guess is that it stands for a "Git
+         ;; Branch".
+         (branch-prefix "GB")
          (base-url (format "%s?version=%s%s&path=/%s"
                            (browse-at-remote-ado-format-url repo-url)
                            branch-prefix
