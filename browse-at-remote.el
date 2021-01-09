@@ -291,6 +291,7 @@ If HEAD is detached, return nil."
 
 (defun browse-at-remote--format-commit-url-as-ado (repo-url commithash)
   "Commit URL formatted for ado"
+  ;; They does not seem to have anything like permalinks from github.
   (error "The ado version of the commit-url is not implemented")
   ;; (format "%s/commits/%s" repo-url commithash))
 )
