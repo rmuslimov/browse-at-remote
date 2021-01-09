@@ -258,6 +258,7 @@ If HEAD is detached, return nil."
 (defun browse-at-remote-ado-format-url (repo-url)
   "Get an ado formatted URL."
   (let* ((s (split-string repo-url "/")))
+    ;; [protocol]//[organization].visualstudio.com/[project]/_git/[repository]
     (format "%s//%s/%s/_git/%s"
             (nth 0 s)
             (replace-regexp-in-string "^vs-ssh" (nth 4 s) (nth 2 s))
