@@ -5,6 +5,7 @@
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.14.0
 ;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure
+;; Homepage:   https://github.com/rmuslimov/browse-at-remote
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))
 
 ;; This program is free software: you can redistribute it and/or modify
