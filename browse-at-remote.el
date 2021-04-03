@@ -263,38 +263,28 @@ If HEAD is detached, return nil."
             (nth 0 s)
             (replace-regexp-in-string "^vs-ssh" (nth 4 s) (nth 2 s))
             (nth 5 s)
-            (nth 6 s)
-            )
-    )
-  )
+            (nth 6 s))))
 
 (defun browse-at-remote--format-region-url-as-ado (repo-url location filename &optional linestart lineend)
   "URL formatted for ado"
   (let* (
-         ;; NOTE: I'm not sure what's the meaning of the
-         ;; branch-prefix. My guess is that it stands for a "Git
-         ;; Branch".
-         (branch-prefix "GB")
+         ;; NOTE: I'm not sure what's the meaning of the "GB"
+         ;; prefix. My guess is that it stands for a "Git Branch".
          (base-url (format "%s?version=%s%s&path=/%s"
                            (browse-at-remote-ado-format-url repo-url)
-                           branch-prefix
+                           "GB"
                            location
-                           filename))
-         )
+                           filename)))
   (cond
    ((and linestart lineend)
     (format "%s&line=%d&lineEnd=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart (+ 1 lineend)))
    (linestart (format "%s&line=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart))
-   (t base-url))
-  )
-  )
+   (t base-url))))
 
 (defun browse-at-remote--format-commit-url-as-ado (repo-url commithash)
   "Commit URL formatted for ado"
   ;; They does not seem to have anything like permalinks from github.
-  (error "The ado version of the commit-url is not implemented")
-  ;; (format "%s/commits/%s" repo-url commithash))
-)
+  (error "The ado version of the commit-url is not implemented"))
 
 (defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"

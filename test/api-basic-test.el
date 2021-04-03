@@ -103,6 +103,4 @@
 
       (should (equal
 	(browse-at-remote--format-region-url-as-ado repo-url location filename 12 14)
-	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el&line=12&lineEnd=15&lineStartColumn=1&lineEndColumn=1"))
-      )
-  )
+	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el&line=12&lineEnd=15&lineStartColumn=1&lineEndColumn=1"))))
