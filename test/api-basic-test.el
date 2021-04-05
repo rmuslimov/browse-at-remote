@@ -84,3 +84,23 @@
       (should (equal
         (browse-at-remote--format-region-url-as-pagure "https://pagure.io/forks/frostyx/copr/copr" location filename)
         "https://pagure.io/fork/frostyx/copr/copr/blob/master/f/frontend/coprs_frontend/manage.py"))))
+
+(ert-deftest get-repo-url-ado ()
+  ;; GreatBanana - organization
+  ;; Forest - project
+  ;; Gorillas - repository
+  (let ((repo-url "https://vs-ssh.visualstudio.com/v3/GreatBanana/Forest/Gorillas")
+	(location "master")
+	(filename "kind/silverback.el"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-ado repo-url location filename)
+	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-ado repo-url location filename 12)
+	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el&line=12&lineStartColumn=1&lineEndColumn=1"))
+
+      (should (equal
+	(browse-at-remote--format-region-url-as-ado repo-url location filename 12 14)
+	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el&line=12&lineEnd=15&lineStartColumn=1&lineEndColumn=1"))))
