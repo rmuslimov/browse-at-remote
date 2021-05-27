@@ -58,23 +58,17 @@
                        (const :tag "Gitiles" "gitiles")))
   "Customize types for remotes")
 
-(defcustom browse-at-remote-remote-type-domains
-  '(("bitbucket.org" ."bitbucket")
-    ("github.com" . "github")
-    ("gitlab.com" . "gitlab")
-    ("git.savannah.gnu.org" . "gnu")
-    ("gist.github.com" . "gist")
-    ("git.sr.ht" . "sourcehut")
-    ("vs-ssh.visualstudio.com" . "ado")
-    ("pagure.io" . "pagure")
-    ("src.fedoraproject.org" . "pagure"))
-  "Alist of domain names to remote types."
-
-  :type browse-at-remote--customize-remote-types
-  :group 'browse-at-remote)
-
 (defcustom browse-at-remote-remote-type-regexps
-  '(("^.*\\.googlesource\\.com$" . "gitiles"))
+  '(("^github\\.com$" . "github")
+    ("^bitbucket\\.org$" ."bitbucket")
+    ("^gitlab\\.com$" . "gitlab")
+    ("^git\\.savannah\\.gnu\\.org$" . "gnu")
+    ("^gist\\.github\\.com$" . "gist")
+    ("^git\\.sr\\.ht$" . "sourcehut")
+    ("^.*\\.visualstudio\\.com$" . "ado")
+    ("^pagure\\.io$" . "pagure")
+    ("^.*\\.fedoraproject\\.org$" . "pagure")
+    ("^.*\\.googlesource\\.com$" . "gitiles"))
   "Alist of domain regular expressions to remote types."
 
   :type browse-at-remote--customize-remote-types
@@ -225,9 +219,6 @@ If HEAD is detached, return nil."
     (or
      (if (s-present? remote-type-from-config)
          remote-type-from-config
-       (cl-loop for pt in browse-at-remote-remote-type-domains
-                when (string= (car pt) domain)
-                return (cdr pt))
        (cl-loop for pt in browse-at-remote-remote-type-regexps
                 when (string-match-p (car pt) domain)
                 return (cdr pt)))
