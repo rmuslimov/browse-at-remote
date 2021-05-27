@@ -42,6 +42,22 @@
   :prefix "browse-at-remote-"
   :group 'applications)
 
+(defvar browse-at-remote--customize-remote-types
+  '(alist :key-type (string :tag "Domain")
+          :value-type (choice
+                       (const :tag "GitHub" "github")
+                       (const :tag "GitLab" "gitlab")
+                       (const :tag "Bitbucket" "bitbucket")
+                       (const :tag "Stash/Bitbucket Server" "stash")
+                       (const :tag "git.savannah.gnu.org" "gnu")
+                       (const :tag "Azure DevOps" "ado")
+                       (const :tag "Phabricator" "phabricator")
+                       (const :tag "gist.github.com" "gist")
+                       (const :tag "sourcehut" "sourcehut")
+                       (const :tag "pagure" "pagure")
+                       (const :tag "Gitiles" "gitiles")))
+  "Customize types for remotes")
+
 (defcustom browse-at-remote-remote-type-domains
   '(("bitbucket.org" ."bitbucket")
     ("github.com" . "github")
@@ -52,20 +68,16 @@
     ("vs-ssh.visualstudio.com" . "ado")
     ("pagure.io" . "pagure")
     ("src.fedoraproject.org" . "pagure"))
-  "Alist of domain patterns to remote types."
+  "Alist of domain names to remote types."
 
-  :type '(alist :key-type (string :tag "Domain")
-                :value-type (choice
-                             (const :tag "GitHub" "github")
-                             (const :tag "GitLab" "gitlab")
-                             (const :tag "Bitbucket" "bitbucket")
-                             (const :tag "Stash/Bitbucket Server" "stash")
-                             (const :tag "git.savannah.gnu.org" "gnu")
-                             (const :tag "Azure DevOps" "ado")
-                             (const :tag "Phabricator" "phabricator")
-                             (const :tag "gist.github.com" "gist")
-                             (const :tag "sourcehut" "sourcehut")
-                             (const :tag "pagure" "pagure")))
+  :type browse-at-remote--customize-remote-types
+  :group 'browse-at-remote)
+
+(defcustom browse-at-remote-remote-type-regexps
+  '(("^.*\\.googlesource\\.com$" . "gitiles"))
+  "Alist of domain regular expressions to remote types."
+
+  :type browse-at-remote--customize-remote-types
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -215,6 +227,9 @@ If HEAD is detached, return nil."
          remote-type-from-config
        (cl-loop for pt in browse-at-remote-remote-type-domains
                 when (string= (car pt) domain)
+                return (cdr pt))
+       (cl-loop for pt in browse-at-remote-remote-type-regexps
+                when (string-match-p (car pt) domain)
                 return (cdr pt)))
 
      (error (format "Sorry, not sure what to do with domain `%s' (consider adding it to `browse-at-remote-remote-type-domains')"
@@ -394,6 +409,30 @@ Currently the same as for github."
   "Commit URL formatted for github"
   (format "%s/commit/%s" repo-url commithash))
 
+(defun browse-at-remote--gerrit-url-cleanup (repo-url)
+  "Remove -review from REPO-URL, so we end up at gitiles instead of gerrit"
+  (replace-regexp-in-string
+   "^\\(https?://\\)\\([a-z]+\\)-review\\(\\.googlesource\\.com/\\)"
+   "\\1\\2\\3"
+   repo-url))
+
+(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart lineend)
+  "Region URL formatted for Gitiles."
+  (format "%s/+/%s/%s%s"
+          (browse-at-remote--gerrit-url-cleanup repo-url)
+          location
+          filename
+          ;; No support for multiline region in gitiles.  Just give
+          ;; the first line.
+          (if linestart
+              (format "#%d" linestart)
+            "")))
+
+(defun browse-at-remote--format-commit-url-as-gitiles (repo-url commithash)
+  "Commit URL formatted for Gitiles."
+  (format "%s/+/%s^!/"
+          (browse-at-remote--gerrit-url-cleanup repo-url)
+          commithash))
 
 (defun browse-at-remote--commit-url (commithash)
   "Return the URL to browse COMMITHASH."
