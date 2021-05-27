@@ -104,3 +104,24 @@
       (should (equal
 	(browse-at-remote--format-region-url-as-ado repo-url location filename 12 14)
 	"https://GreatBanana.visualstudio.com/Forest/_git/Gorillas?version=GBmaster&path=/kind/silverback.el&line=12&lineEnd=15&lineStartColumn=1&lineEndColumn=1"))))
+
+(ert-deftest format-region-url-gitiles ()
+  (let ((repo-url "https://chromium-review.googlesource.com/chromiumos/platform/ec")
+        (location "main")
+        (filename "common/printf.c"))
+    (should (equal
+             (browse-at-remote--format-region-url-as-gerrit repo-url location filename)
+             "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c"))
+    (should (equal
+             (browse-at-remote--format-region-url-as-gerrit repo-url location filename 102)
+             "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c#102"))
+    (should (equal
+             (browse-at-remote--format-region-url-as-gerrit repo-url location filename 102 110)
+             "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c#102"))))
+
+(ert-deftest format-commit-url-gitiles ()
+  (let ((repo-url "https://chromium-review.googlesource.com/chromiumos/platform/ec")
+        (commit "bf9979b91599ffc76018d60e780d19fa8d266ac0"))
+    (should (equal
+             (browse-at-remote--format-commit-url-as-gerrit repo-url commit)
+             "https://chromium.googlesource.com/chromiumos/platform/ec/+/bf9979b91599ffc76018d60e780d19fa8d266ac0^!/"))))
