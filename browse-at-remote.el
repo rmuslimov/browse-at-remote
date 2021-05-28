@@ -403,7 +403,7 @@ Currently the same as for github."
 (defun browse-at-remote--gerrit-url-cleanup (repo-url)
   "Remove -review from REPO-URL, so we end up at gitiles instead of gerrit"
   (replace-regexp-in-string
-   "^\\(https?://\\)\\([a-z]+\\)-review\\(\\.googlesource\\.com/\\)"
+   "^\\(https?://\\)\\([A-Za-z0-9-]+\\)-review\\(\\.googlesource\\.com/\\)"
    "\\1\\2\\3"
    repo-url))
 
