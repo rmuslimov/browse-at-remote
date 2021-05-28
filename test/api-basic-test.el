@@ -110,18 +110,18 @@
         (location "main")
         (filename "common/printf.c"))
     (should (equal
-             (browse-at-remote--format-region-url-as-gerrit repo-url location filename)
+             (browse-at-remote--format-region-url-as-gitiles repo-url location filename)
              "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c"))
     (should (equal
-             (browse-at-remote--format-region-url-as-gerrit repo-url location filename 102)
+             (browse-at-remote--format-region-url-as-gitiles repo-url location filename 102)
              "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c#102"))
     (should (equal
-             (browse-at-remote--format-region-url-as-gerrit repo-url location filename 102 110)
+             (browse-at-remote--format-region-url-as-gitiles repo-url location filename 102 110)
              "https://chromium.googlesource.com/chromiumos/platform/ec/+/main/common/printf.c#102"))))
 
 (ert-deftest format-commit-url-gitiles ()
   (let ((repo-url "https://chromium-review.googlesource.com/chromiumos/platform/ec")
         (commit "bf9979b91599ffc76018d60e780d19fa8d266ac0"))
     (should (equal
-             (browse-at-remote--format-commit-url-as-gerrit repo-url commit)
+             (browse-at-remote--format-commit-url-as-gitiles repo-url commit)
              "https://chromium.googlesource.com/chromiumos/platform/ec/+/bf9979b91599ffc76018d60e780d19fa8d266ac0^!/"))))
