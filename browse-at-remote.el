@@ -223,7 +223,7 @@ If HEAD is detached, return nil."
                 when (string-match-p (car pt) domain)
                 return (cdr pt)))
 
-     (error (format "Sorry, not sure what to do with domain `%s' (consider adding it to `browse-at-remote-remote-type-domains')"
+     (error (format "Sorry, not sure what to do with domain `%s' (consider adding it to `browse-at-remote-remote-type-regexps')"
                     domain)))))
 
 (defun browse-at-remote--get-formatter (formatter-type remote-type)
@@ -234,10 +234,11 @@ If HEAD is detached, return nil."
 
 (defun browse-at-remote-gnu-format-url (repo-url)
   "Get a gnu formatted URL."
-  (replace-regexp-in-string
-   (concat "https://" (car (rassoc "gnu" browse-at-remote-remote-type-domains))
-           "/\\(git\\).*\\'")
-   "cgit" repo-url nil nil 1))
+  (let* ((parts (split-string repo-url "/" t))
+	 (domain (butlast parts))
+	 (project (car (last parts))))
+    (string-join
+     (append domain (list "cgit" project)) "/")))
 
 (defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart lineend)
   "URL formatter for gnu."
