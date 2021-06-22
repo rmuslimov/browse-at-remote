@@ -202,7 +202,7 @@ If HEAD is detached, return nil."
     (vc-git--call t "remote")
     (let ((remotes (s-trim (buffer-string))))
       (unless (string= remotes "")
-        (s-split "\\W+" remotes)))))
+        (s-lines remotes)))))
 
 (defun browse-at-remote--get-remote-type-from-config ()
   "Get remote type from current repo."
