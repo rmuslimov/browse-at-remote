@@ -33,6 +33,7 @@
 
 (require 'f)
 (require 's)
+(require 'dash)
 (require 'cl-lib)
 (require 'vc-git)
 (require 'url-parse)
@@ -72,6 +73,14 @@
   "Alist of domain regular expressions to remote types."
 
   :type browse-at-remote--customize-remote-types
+  :group 'browse-at-remote)
+
+(defcustom browse-at-remote-preferred-remote-name
+  "origin"
+  "The preferred remote name
+Remotes ares sorted alphabetically, which might return the wrong remote pointing to a different url.
+When nil or not found use the first remote."
+  :type 'string
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-prefer-symbolic t
@@ -144,7 +153,7 @@ Returns nil if no appropriate remote or ref can be found."
         (setq remote-branch (cdr remote-and-branch)))
     ;; Otherwise, we have a detached head. Choose a remote
     ;; arbitrarily.
-    (setq remote-name (car (browse-at-remote--get-remotes))))
+    (setq remote-name (browse-at-remote--get-preferred-remote)))
 
     (when remote-name
       (cons
@@ -188,7 +197,7 @@ If HEAD is detached, return nil."
       ;; Split into two-item list, then convert to a pair.
       (apply #'cons
              (s-split-up-to "/" (s-trim remote-and-branch) 1))
-      (cons (car (browse-at-remote--get-remotes)) local-branch))))
+      (cons (browse-at-remote--get-preferred-remote) local-branch))))
 
 (defun browse-at-remote--get-remote-url (remote)
   "Get URL of REMOTE from current repo."
@@ -203,6 +212,17 @@ If HEAD is detached, return nil."
     (let ((remotes (s-trim (buffer-string))))
       (unless (string= remotes "")
         (s-split "\\W+" remotes)))))
+
+(defun browse-at-remote--get-preferred-remote ()
+  "Return either the preferred remote matching the name of browse-at-remote-preferred-remote-name.
+If nil return the first remote in the list."
+  (let ((remotes (browse-at-remote--get-remotes)))
+    (if (and
+         remotes
+         browse-at-remote-preferred-remote-name
+         (-contains? remotes browse-at-remote-preferred-remote-name))
+        browse-at-remote-preferred-remote-name
+      (car remotes))))
 
 (defun browse-at-remote--get-remote-type-from-config ()
   "Get remote type from current repo."
