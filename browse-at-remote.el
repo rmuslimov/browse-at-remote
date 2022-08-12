@@ -97,6 +97,11 @@ By default is true."
   "List of domains where the web URL should be http."
   :type '(repeat string))
 
+(defcustom browse-at-remote-append-path-to-host nil
+  "Path to append at the end of the HTTP host before the filename name."
+  :type 'string
+  :group 'browse-at-remote)
+
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return (DOMAIN . URL) from REMOTE-URL."
   ;; If the protocol isn't specified, git treats it as an SSH URL.
