@@ -130,7 +130,7 @@ By default is true."
     (when port
       (setq host (format "%s:%d" host port)))
     (cons host
-          (format "%s://%s%s" web-proto host filename))))
+          (format "%s://%s%s%s" web-proto host path filename))))
 
 (defun browse-at-remote--remote-ref (&optional filename)
   "Return (REMOTE-URL . REF) which contains FILENAME.
