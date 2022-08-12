@@ -112,6 +112,7 @@ By default is true."
          (port (url-port-if-non-default parsed))
          (web-proto
           (if (equal (url-type parsed) "http") "http" "https"))
+         (path (or browse-at-remote-append-path-to-host ""))
          (filename (url-filename parsed)))
     ;; SSH URLs can contain colons in the host part, e.g. ssh://example.com:foo.
     (when (s-contains-p ":" host)
