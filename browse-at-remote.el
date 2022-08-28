@@ -68,7 +68,8 @@
     ("^.*\\.visualstudio\\.com$" . "ado")
     ("^pagure\\.io$" . "pagure")
     ("^.*\\.fedoraproject\\.org$" . "pagure")
-    ("^.*\\.googlesource\\.com$" . "gitiles"))
+    ("^.*\\.googlesource\\.com$" . "gitiles")
+    ("^gitlab\\.gnome\\.org$" . "gitlab"))
   "Alist of domain regular expressions to remote types."
 
   :type browse-at-remote--customize-remote-types
