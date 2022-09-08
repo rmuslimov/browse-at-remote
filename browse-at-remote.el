@@ -98,6 +98,11 @@ By default is true."
   "List of domains where the web URL should be http."
   :type '(repeat string))
 
+(defcustom browse-at-remote-append-path-to-host nil
+  "Path to append at the end of the HTTP host before the filename name."
+  :type 'string
+  :group 'browse-at-remote)
+
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return (DOMAIN . URL) from REMOTE-URL."
   ;; If the protocol isn't specified, git treats it as an SSH URL.
@@ -108,6 +113,7 @@ By default is true."
          (port (url-port-if-non-default parsed))
          (web-proto
           (if (equal (url-type parsed) "http") "http" "https"))
+         (path (or browse-at-remote-append-path-to-host ""))
          (filename (url-filename parsed)))
     ;; SSH URLs can contain colons in the host part, e.g. ssh://example.com:foo.
     (when (s-contains-p ":" host)
@@ -125,7 +131,7 @@ By default is true."
     (when port
       (setq host (format "%s:%d" host port)))
     (cons host
-          (format "%s://%s%s" web-proto host filename))))
+          (format "%s://%s%s%s" web-proto host path filename))))
 
 (defun browse-at-remote--remote-ref (&optional filename)
   "Return (REMOTE-URL . REF) which contains FILENAME.
