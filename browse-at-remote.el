@@ -335,7 +335,7 @@ If HEAD is detached, return nil."
   "URL formatted for stash"
 	(let* ((branch (cond
                   ((string= location "master") "")
-                  (t (string-join (list "?at=refs%2Fheads%2F" location)))))
+                  (t (string-join (list "?at=" location)))))
          (lines (cond
                  (lineend (format "#%d-%d" linestart lineend))
                  (linestart (format "#%d" linestart))
