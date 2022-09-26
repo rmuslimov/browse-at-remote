@@ -444,19 +444,23 @@ Currently the same as for github."
   (let* ((remote-ref (browse-at-remote--remote-ref filename))
          (remote (car remote-ref))
          (ref (cdr remote-ref))
-         (relname (f-relative filename (f-expand (vc-git-root filename))))
-         (target-repo (browse-at-remote--get-url-from-remote remote))
-         (remote-type (browse-at-remote--get-remote-type target-repo))
-         (repo-url (cdr target-repo))
-         (url-formatter (browse-at-remote--get-formatter 'region-url remote-type))
+         (git-root (vc-git-root filename))
          (start-line (when start (line-number-at-pos start)))
          (end-line (when end (line-number-at-pos end))))
-    (unless url-formatter
-      (error (format "Origin repo parsing failed: %s" repo-url)))
+    (unless git-root
+      (error "You are not in a git repository"))
 
-    (funcall url-formatter repo-url ref relname
-             (if start-line start-line)
-             (if (and end-line (not (equal start-line end-line))) end-line))))
+    (let* ((target-repo (browse-at-remote--get-url-from-remote remote))
+           (remote-type (browse-at-remote--get-remote-type target-repo))
+           (repo-url (cdr target-repo))
+           (url-formatter (browse-at-remote--get-formatter 'region-url remote-type))
+           (relname (f-relative filename (f-expand git-root))))
+      (unless url-formatter
+        (error (format "Origin repo parsing failed: %s" repo-url)))
+
+      (funcall url-formatter repo-url ref relname
+               (if start-line start-line)
+               (if (and end-line (not (equal start-line end-line))) end-line)))))
 
 (defun browse-at-remote-get-url ()
   "Main method, returns URL to browse."
