@@ -43,35 +43,39 @@
   :group 'applications)
 
 (defvar browse-at-remote--customize-remote-types
-  '(alist :key-type (string :tag "Domain")
-          :value-type (choice
-                       (const :tag "GitHub" "github")
-                       (const :tag "GitLab" "gitlab")
-                       (const :tag "Bitbucket" "bitbucket")
-                       (const :tag "Stash/Bitbucket Server" "stash")
-                       (const :tag "git.savannah.gnu.org" "gnu")
-                       (const :tag "Azure DevOps" "ado")
-                       (const :tag "Phabricator" "phabricator")
-                       (const :tag "gist.github.com" "gist")
-                       (const :tag "sourcehut" "sourcehut")
-                       (const :tag "pagure" "pagure")
-                       (const :tag "Gitiles" "gitiles")))
+  '(list
+    (plist :key-type (choice (const :tag "Host" :host)
+                             (const :tag "Type" :type)
+                             (const :tag "Actual host" :actual-host))
+           :value-type (choice string
+                               (choice (const :tag "GitHub" "github")
+                                       (const :tag "GitLab" "gitlab")
+                                       (const :tag "Bitbucket" "bitbucket")
+                                       (const :tag "Stash/Bitbucket Server" "stash")
+                                       (const :tag "git.savannah.gnu.org" "gnu")
+                                       (const :tag "Azure DevOps" "ado")
+                                       (const :tag "Phabricator" "phabricator")
+                                       (const :tag "gist.github.com" "gist")
+                                       (const :tag "sourcehut" "sourcehut")
+                                       (const :tag "pagure" "pagure")
+                                       (const :tag "Gitiles" "gitiles")))))
   "Customize types for remotes")
 
 (defcustom browse-at-remote-remote-type-regexps
-  '(("^github\\.com$" . "github")
-    ("^bitbucket\\.org$" ."bitbucket")
-    ("^gitlab\\.com$" . "gitlab")
-    ("^git\\.savannah\\.gnu\\.org$" . "gnu")
-    ("^gist\\.github\\.com$" . "gist")
-    ("^git\\.sr\\.ht$" . "sourcehut")
-    ("^.*\\.visualstudio\\.com$" . "ado")
-    ("^pagure\\.io$" . "pagure")
-    ("^.*\\.fedoraproject\\.org$" . "pagure")
-    ("^.*\\.googlesource\\.com$" . "gitiles")
-    ("^gitlab\\.gnome\\.org$" . "gitlab"))
-  "Alist of domain regular expressions to remote types."
-
+  '((:host "^github\\.com$"               :type "github")
+    (:host "^bitbucket\\.org$"            :type "bitbucket")
+    (:host "^gitlab\\.com$"               :type "gitlab")
+    (:host "^git\\.savannah\\.gnu\\.org$" :type "gnu")
+    (:host "^gist\\.github\\.com$"        :type "gist")
+    (:host "^git\\.sr\\.ht$"              :type "sourcehut")
+    (:host "^.*\\.visualstudio\\.com$"    :type "ado")
+    (:host "^pagure\\.io$"                :type "pagure")
+    (:host "^.*\\.fedoraproject\\.org$"   :type "pagure")
+    (:host "^.*\\.googlesource\\.com$"    :type "gitiles")
+    (:host "^gitlab\\.gnome\\.org$"       :type "gitlab"))
+  "Plist of host regular expressions to remote types.
+When property `:actual-host' is non-nil, the remote host will be
+resolved to `:actual-host'."
   :type browse-at-remote--customize-remote-types
   :group 'browse-at-remote)
 
@@ -95,16 +99,17 @@ By default is true."
   :group 'browse-at-remote)
 
 (defcustom browse-at-remote-use-http nil
-  "List of domains where the web URL should be http."
+  "List of hosts where the URL protocol should be http."
   :type '(repeat string))
 
 (defun browse-at-remote--get-url-from-remote (remote-url)
-  "Return (DOMAIN . URL) from REMOTE-URL."
+  "Return a plist describing REMOTE-URL."
   ;; If the protocol isn't specified, git treats it as an SSH URL.
   (unless (s-contains-p "://" remote-url)
     (setq remote-url (concat "ssh://" remote-url)))
   (let* ((parsed (url-generic-parse-url remote-url))
          (host (url-host parsed))
+         (unresolved-host nil)
          (port (url-port-if-non-default parsed))
          (web-proto
           (if (equal (url-type parsed) "http") "http" "https"))
@@ -122,10 +127,14 @@ By default is true."
     ;; Drop .git at the end of `remote-url'.
     (setq filename (s-chop-suffix ".git" filename))
     ;; Preserve the port.
+    (setq unresolved-host host
+          host (browse-at-remote--resolve-host host))
     (when port
-      (setq host (format "%s:%d" host port)))
-    (cons host
-          (format "%s://%s%s" web-proto host filename))))
+      (setq host (format "%s:%d" host port)
+            unresolved-host (format "%s:%d" unresolved-host port)))
+    `(:host ,host
+      :unresolved-host ,unresolved-host
+      :url ,(format "%s://%s%s" web-proto host filename))))
 
 (defun browse-at-remote--remote-ref (&optional filename)
   "Return (REMOTE-URL . REF) which contains FILENAME.
@@ -209,23 +218,37 @@ If HEAD is detached, return nil."
   "Get remote type from current repo."
   (browse-at-remote--get-from-config "browseAtRemote.type"))
 
+(defun browse-at-remote--get-remote-actual-host-from-config ()
+  "Get remote actual host from current repo."
+  (browse-at-remote--get-from-config "browseAtRemote.actualHost"))
+
 (defun browse-at-remote--get-from-config (key)
   (with-temp-buffer
     (vc-git--call t "config" "--get" key)
     (s-trim (buffer-string))))
 
-(defun browse-at-remote--get-remote-type (target-repo)
-  (let* ((domain (car target-repo))
-         (remote-type-from-config (browse-at-remote--get-remote-type-from-config)))
-    (or
-     (if (s-present? remote-type-from-config)
-         remote-type-from-config
-       (cl-loop for pt in browse-at-remote-remote-type-regexps
-                when (string-match-p (car pt) domain)
-                return (cdr pt)))
+(defun browse-at-remote--get-remote-type (host)
+  (let ((type-from-config (browse-at-remote--get-remote-type-from-config)))
+    (or (if (s-present? type-from-config)
+            type-from-config
+          (cl-loop for plist in browse-at-remote-remote-type-regexps
+                   when (string-match-p (plist-get plist :host) host)
+                   return (plist-get plist :type)))
+        (error (format "Sorry, not sure what to do with host `%s' (consider adding it to `browse-at-remote-remote-type-regexps')"
+                       host)))))
 
-     (error (format "Sorry, not sure what to do with domain `%s' (consider adding it to `browse-at-remote-remote-type-regexps')"
-                    domain)))))
+(defun browse-at-remote--resolve-host (host)
+  "Translate HOST to the actual host.
+Returns HOST if the property `:actual-host' can't be found in its
+related remote in `browse-at-remote-remote-type-regexps'."
+  (let ((actual-host-from-config (browse-at-remote--get-remote-actual-host-from-config)))
+    (or (if (s-present? actual-host-from-config)
+            actual-host-from-config
+          (cl-loop for plist in browse-at-remote-remote-type-regexps
+                   when (and (plist-get plist :actual-host)
+                             (string-match-p (map-elt plist :host) host))
+                   return (plist-get plist :actual-host)))
+        host)))
 
 (defun browse-at-remote--get-formatter (formatter-type remote-type)
   "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
@@ -236,8 +259,8 @@ If HEAD is detached, return nil."
 (defun browse-at-remote-gnu-format-url (repo-url)
   "Get a gnu formatted URL."
   (let* ((parts (split-string repo-url "/" t))
-	 (domain (butlast parts))
-	 (project (car (last parts))))
+   (domain (butlast parts))
+   (project (car (last parts))))
     (string-join
      (append domain (list "cgit" project)) "/")))
 
@@ -327,14 +350,14 @@ If HEAD is detached, return nil."
 
 (defun browse-at-remote--fix-repo-url-stash (repo-url)
   "Inserts 'projects' and 'repos' in #repo-url"
-	(let* ((reversed-url (reverse (split-string repo-url "/")))
+  (let* ((reversed-url (reverse (split-string repo-url "/")))
          (project (car reversed-url))
          (repo (nth 1 reversed-url)))
     (string-join (reverse (append (list project "repos" repo "projects") (nthcdr 2 reversed-url))) "/")))
 
 (defun browse-at-remote--format-region-url-as-stash (repo-url location filename &optional linestart lineend)
   "URL formatted for stash"
-	(let* ((branch (cond
+  (let* ((branch (cond
                   ((string= location "master") "")
                   (t (string-join (list "?at=" location)))))
          (lines (cond
@@ -349,7 +372,7 @@ If HEAD is detached, return nil."
 
 (defun browse-at-remote--format-region-url-as-phabricator (repo-url location filename &optional linestart lineend)
   "URL formatted for Phabricator"
-  	(let* ((lines (cond
+    (let* ((lines (cond
                  (lineend (format "\$%d-%d" linestart lineend))
                  (linestart (format "\$%d" linestart))
                  (t ""))))
@@ -431,8 +454,8 @@ Currently the same as for github."
   "Return the URL to browse COMMITHASH."
   (let* ((remote (car (browse-at-remote--remote-ref)))
          (target-repo (browse-at-remote--get-url-from-remote remote))
-         (repo-url (cdr target-repo))
-         (remote-type (browse-at-remote--get-remote-type target-repo))
+         (repo-url (plist-get target-repo :url))
+         (remote-type (browse-at-remote--get-remote-type (plist-get target-repo :unresolved-host)))
          (clear-commithash (s-chop-prefixes '("^") commithash))
          (url-formatter (browse-at-remote--get-formatter 'commit-url remote-type)))
     (unless url-formatter
@@ -446,8 +469,8 @@ Currently the same as for github."
          (ref (cdr remote-ref))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote--get-url-from-remote remote))
-         (remote-type (browse-at-remote--get-remote-type target-repo))
-         (repo-url (cdr target-repo))
+         (remote-type (browse-at-remote--get-remote-type (plist-get target-repo :unresolved-host)))
+         (repo-url (plist-get target-repo :url))
          (url-formatter (browse-at-remote--get-formatter 'region-url remote-type))
          (start-line (when start (line-number-at-pos start)))
          (end-line (when end (line-number-at-pos end))))

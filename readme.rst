@@ -77,11 +77,31 @@ By default `browse-at-remote` add line number when region is not selected in fil
 
 Or setting via UI with `M-x customize`.
 
+Customize how the host is resolved
+**********************************
+
+There are cases where you might need to resolve a remote host to a particular value. For example, one common strategy to manage multiple SSH keys is to add an entry to `~/.ssh.config`::
+
+  Host mycompany.github.com
+      HostName github.com
+      User git
+      IdentityFile ~/.ssh/id_rsa_mycompany
+
+For such cases, you can use the `:actual-host` property::
+
+   (add-to-list 'browse-at-remote-remote-type-regexps
+                `(:host ,(rx bol "mycompany.github.com" eol)
+                  :type "github"
+                  :actual-host "github.com"))
+
+You can also directly configure the repository::
+
+  git config --add browseAtRemote.actualHost "github.com"
 
 Adding new remote type
 ----------------------
 
-You can your own remote if you need - PRs are welcome! Please see good examples here: gnu-savannah-remote_, or stash-remote_.
+You can add your own remote if you need - PRs are welcome! Please see good examples here: gnu-savannah-remote_, or stash-remote_.
 
 
 Usage:
