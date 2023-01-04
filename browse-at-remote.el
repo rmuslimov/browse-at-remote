@@ -1,9 +1,9 @@
 ;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs -*- lexical-binding:t -*-
 
-;; Copyright © 2015-2020
+;; Copyright © 2015-2023
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
-;; Version:    0.14.0
+;; Version:    0.15.0
 ;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure
 ;; Homepage:   https://github.com/rmuslimov/browse-at-remote
 ;; Package-Requires: ((f "0.17.2") (s "1.9.0") (cl-lib "0.5"))

@@ -162,9 +162,15 @@ Contributors:
 - `@microamp`_
 - `@FrostyX`_
 - `@legendary-mich`_
+- `@ilmotta`_
 
 Changelog:
 --------
+
+0.15.0
+******
+Added new feature allowing customize how hosts are resolved by @ilmotta.
+
 
 0.14.0
 ******
