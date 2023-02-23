@@ -1,6 +1,9 @@
 .. image:: http://melpa.org/packages/browse-at-remote-badge.svg
    :target: http://melpa.org/#/browse-at-remote
 
+.. image:: https://travis-ci.org/rmuslimov/browse-at-remote.svg?branch=master
+    :target: https://travis-ci.org/rmuslimov/browse-at-remote
+
 browse-at-remote.el
 ===================
 
