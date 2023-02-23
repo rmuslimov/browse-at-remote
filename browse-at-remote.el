@@ -424,7 +424,7 @@ Currently the same as for github."
 
 (defun browse-at-remote--format-commit-url-as-pagure (repo-url commithash)
   "Commit URL formatted for github"
-  (format "%s/commit/%s" repo-url commithash))
+  (format "%s/c/%s" repo-url commithash))
 
 (defun browse-at-remote--gerrit-url-cleanup (repo-url)
   "Remove -review from REPO-URL, so we end up at gitiles instead of gerrit"
