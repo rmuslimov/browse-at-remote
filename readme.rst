@@ -32,7 +32,7 @@ Active keybindings for ``browse-at-remote`` function:::
 GNU Guix
 ********
 
-Run ``guix package -i emacs-browse-at-remote`` then load ``browse-at-remote`` from your Emacs init.
+Run ``guix install emacs-browse-at-remote`` then load ``browse-at-remote`` from your Emacs init.
 
 Customization
 -------------
