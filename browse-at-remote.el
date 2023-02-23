@@ -193,8 +193,9 @@ If HEAD is detached, return nil."
               "--abbrev-ref"
               (format "%s@{upstream}" local-branch))
              ))))
-    ;; `remote-and-branch' is of the form "origin/master"
-    (if remote-and-branch
+    ;; `remote-and-branch' should be of the form "origin/master"
+    (if (and remote-and-branch
+             (s-contains? "/" remote-and-branch))
       ;; Split into two-item list, then convert to a pair.
       (apply #'cons
              (s-split-up-to "/" (s-trim remote-and-branch) 1))
