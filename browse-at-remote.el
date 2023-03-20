@@ -373,7 +373,7 @@ REMOTE-TYPE (github or bitbucket)"
     (format "%s/%s" repo-url commithash))))
 
 (defun browse-at-remote--fix-repo-url-stash (repo-url)
-  "Inserts 'projects' and 'repos' in #repo-url"
+  "Inserts `projects' and `repos' in REPO-URL"
   (let* ((reversed-url (reverse (split-string repo-url "/")))
          (project (car reversed-url))
          (repo (nth 1 reversed-url)))
