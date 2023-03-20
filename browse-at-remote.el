@@ -436,7 +436,7 @@ Currently the same as for github."
 (defun browse-at-remote--format-region-url-as-pagure (repo-url location filename &optional linestart lineend)
   (let* ((repo-url (s-replace "/forks/" "/fork/" repo-url))
          (markup_ext (list ".rst" ".mk" ".md" ".markdown"))
-         (markup? (seq-contains (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
+         (markup? (seq-contains-p (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
          (filename (cond (markup? (concat filename "?text=True"))
                          (t filename))))
     (cond
