@@ -505,6 +505,8 @@ Currently the same as for github."
              (if start-line start-line)
              (if (and end-line (not (equal start-line end-line))) end-line))))
 
+(declare-function dired-current-directory "dired")
+(declare-function log-view-current-entry "log-view")
 (defun browse-at-remote-get-url ()
   "Main method, returns URL to browse."
 
