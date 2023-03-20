@@ -285,7 +285,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
     (string-join
      (append domain (list "cgit" project)) "/")))
 
-(defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart _lineend)
   "URL formatter for gnu."
   (let ((repo-url (browse-at-remote-gnu-format-url repo-url)))
     (cond
@@ -334,7 +334,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
    (linestart (format "%s&line=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart))
    (t base-url))))
 
-(defun browse-at-remote--format-commit-url-as-ado (repo-url commithash)
+(defun browse-at-remote--format-commit-url-as-ado (_repo-url _commithash)
   "Commit URL formatted for ado"
   ;; They does not seem to have anything like permalinks from github.
   (error "The ado version of the commit-url is not implemented"))
@@ -351,7 +351,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
 
-(defun browse-at-remote--format-region-url-as-gist (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gist (repo-url _location filename &optional linestart lineend)
   "URL formatted for gist."
   (concat
    (format "%s#file-%s" repo-url
@@ -453,7 +453,7 @@ Currently the same as for github."
    "\\1\\2\\3"
    repo-url))
 
-(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart _lineend)
   "Region URL formatted for Gitiles."
   (format "%s/+/%s/%s%s"
           (browse-at-remote--gerrit-url-cleanup repo-url)
