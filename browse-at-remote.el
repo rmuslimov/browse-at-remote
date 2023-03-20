@@ -83,8 +83,8 @@ resolved to `:actual-host'."
 (defcustom browse-at-remote-preferred-remote-name
   "origin"
   "The preferred remote name
-Remotes ares sorted alphabetically, which might return the wrong remote pointing to a different url.
-When nil or not found use the first remote."
+Remotes ares sorted alphabetically, which might return the wrong remote pointing
+to a different url.  When nil or not found use the first remote."
   :type 'string
   :group 'browse-at-remote)
 
@@ -101,7 +101,8 @@ When nil, uses the commit hash. The contents will never change."
 
 (defcustom browse-at-remote-add-line-number-if-no-region-selected t
   "Always add line number even if region is not selected in buffer.
-When is option is t, bar-browse adds line number to URL even if region was not selected.
+When is option is t, bar-browse adds line number to URL even if region was not
+selected.
 
 By default is true."
   :type 'boolean
@@ -225,7 +226,8 @@ If HEAD is detached, return nil."
         (s-lines remotes)))))
 
 (defun browse-at-remote--get-preferred-remote ()
-  "Return either the preferred remote matching the name of browse-at-remote-preferred-remote-name.
+  "Return either the preferred remote matching the name of
+`browse-at-remote-preferred-remote-name'.
 If nil return the first remote in the list."
   (let ((remotes (browse-at-remote--get-remotes)))
     (if (and
@@ -272,7 +274,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
         host)))
 
 (defun browse-at-remote--get-formatter (formatter-type remote-type)
-  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
+  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and
+REMOTE-TYPE (github or bitbucket)"
   (let ((formatter (intern (format "browse-at-remote--format-%s-as-%s" formatter-type remote-type))))
     (if (fboundp formatter)
         formatter nil)))
