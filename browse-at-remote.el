@@ -4,7 +4,7 @@
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.15.0
-;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure
+;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure, codeberg
 ;; Homepage:   https://github.com/rmuslimov/browse-at-remote
 ;; Package-Requires: ((f "0.20.0") (s "1.9.0") (cl-lib "0.5"))
 
@@ -59,7 +59,8 @@
                                        (const :tag "gist.github.com" "gist")
                                        (const :tag "sourcehut" "sourcehut")
                                        (const :tag "pagure" "pagure")
-                                       (const :tag "Gitiles" "gitiles")))))
+                                       (const :tag "Gitiles" "gitiles")
+                                       (const :tag "Codeberg" "codeberg")))))
   "Customize types for remotes")
 
 (defcustom browse-at-remote-remote-type-regexps
@@ -73,7 +74,8 @@
     (:host "^pagure\\.io$"                :type "pagure")
     (:host "^.*\\.fedoraproject\\.org$"   :type "pagure")
     (:host "^.*\\.googlesource\\.com$"    :type "gitiles")
-    (:host "^gitlab\\.gnome\\.org$"       :type "gitlab"))
+    (:host "^gitlab\\.gnome\\.org$"       :type "gitlab")
+    (:host "^codeberg\\.org$"             :type "codeberg"))
   "Plist of host regular expressions to remote types.
 When property `:actual-host' is non-nil, the remote host will be
 resolved to `:actual-host'."
@@ -166,14 +168,14 @@ Returns nil if no appropriate remote or ref can be found."
     (setq remote-name (browse-at-remote--get-preferred-remote)))
 
     (when remote-name
-      (cons
+      (list
        (browse-at-remote--get-remote-url remote-name)
        (if (and browse-at-remote-prefer-symbolic remote-branch)
            ;; If the user has requested an URL with a branch name, and we
            ;; have a remote branch, use that.
-           remote-branch
+           `(branch . ,remote-branch)
          ;; Otherwise, just use the commit hash.
-         revision)))))
+         `(revision . ,revision))))))
 
 (defun browse-at-remote--get-local-branch ()
   "Return the name of the current local branch name.
@@ -285,7 +287,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
     (string-join
      (append domain (list "cgit" project)) "/")))
 
-(defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gnu (repo-url location-type location filename &optional linestart lineend)
   "URL formatter for gnu."
   (let ((repo-url (browse-at-remote-gnu-format-url repo-url)))
     (cond
@@ -296,7 +298,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for gnu"
   (format "%s.git/commit/?id=%s" (browse-at-remote-gnu-format-url repo-url) commithash))
 
-(defun browse-at-remote--format-region-url-as-github (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-github (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for github."
   (cond
    ((and linestart lineend)
@@ -318,7 +320,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
             (nth 5 s)
             (nth 6 s))))
 
-(defun browse-at-remote--format-region-url-as-ado (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-ado (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for ado"
   (let* (
          ;; NOTE: I'm not sure what's the meaning of the "GB"
@@ -339,7 +341,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   ;; They does not seem to have anything like permalinks from github.
   (error "The ado version of the commit-url is not implemented"))
 
-(defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-bitbucket (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for bitbucket"
   (cond
    ((and linestart lineend)
@@ -351,7 +353,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
 
-(defun browse-at-remote--format-region-url-as-gist (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gist (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for gist."
   (concat
    (format "%s#file-%s" repo-url
@@ -376,7 +378,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
          (repo (nth 1 reversed-url)))
     (string-join (reverse (append (list project "repos" repo "projects") (nthcdr 2 reversed-url))) "/")))
 
-(defun browse-at-remote--format-region-url-as-stash (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-stash (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for stash"
   (let* ((branch (cond
                   ((string= location "master") "")
@@ -391,7 +393,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for stash"
   (format "%s/commits/%s" (browse-at-remote--fix-repo-url-stash repo-url) commithash))
 
-(defun browse-at-remote--format-region-url-as-phabricator (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-phabricator (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for Phabricator"
     (let* ((lines (cond
                  (lineend (format "\$%d-%d" linestart lineend))
@@ -404,7 +406,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   (message repo-url)
   (format "%s/%s%s" (replace-regexp-in-string "\/source/.*" "" repo-url)  (read-string "Please input the callsign for this repository:") commithash))
 
-(defun browse-at-remote--format-region-url-as-gitlab (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gitlab (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for gitlab.
 The only difference from github is format of region: L1-2 instead of L1-L2"
   (cond
@@ -413,7 +415,7 @@ The only difference from github is format of region: L1-2 instead of L1-L2"
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
-(defun browse-at-remote--format-region-url-as-sourcehut (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-sourcehut (repo-url location-type location filename &optional linestart lineend)
   "URL formatted for sourcehut."
   (cond
    ((and linestart lineend)
@@ -430,7 +432,7 @@ Currently the same as for github."
   "Commit URL formatted for sourcehut."
   (format "%s/commit/%s" repo-url commithash))
 
-(defun browse-at-remote--format-region-url-as-pagure (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-pagure (repo-url location-type location filename &optional linestart lineend)
   (let* ((repo-url (s-replace "/forks/" "/fork/" repo-url))
          (markup_ext (list ".rst" ".mk" ".md" ".markdown"))
          (markup? (seq-contains (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
@@ -453,7 +455,7 @@ Currently the same as for github."
    "\\1\\2\\3"
    repo-url))
 
-(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gitiles (repo-url location-type location filename &optional linestart lineend)
   "Region URL formatted for Gitiles."
   (format "%s/+/%s/%s%s"
           (browse-at-remote--gerrit-url-cleanup repo-url)
@@ -471,6 +473,19 @@ Currently the same as for github."
           (browse-at-remote--gerrit-url-cleanup repo-url)
           commithash))
 
+(defun browse-at-remote--format-region-url-as-codeberg (repo-url location-type location filename &optional linestart lineend)
+  "URL formatted for Codeberg."
+  (let ((src-type (if (eq location-type 'branch) "branch" "commit")))
+    (cond
+     ((and linestart lineend)
+      (format "%s/src/%s/%s/%s#L%d-L%d" repo-url src-type location filename linestart lineend))
+     (linestart (format "%s/src/%s/%s/%s#L%d" repo-url src-type location filename linestart))
+     (t (format "%s/src/%s/%s/%s" repo-url src-type location filename)))))
+
+(defun browse-at-remote--format-commit-url-as-codeberg (repo-url commithash)
+  "Commit URL formatted for Codeberg."
+  (format "%s/src/commit/%s" repo-url commithash))
+
 (defun browse-at-remote--commit-url (commithash)
   "Return the URL to browse COMMITHASH."
   (let* ((remote (car (browse-at-remote--remote-ref)))
@@ -487,7 +502,8 @@ Currently the same as for github."
   "Return the URL to browse FILENAME from lines START to END. "
   (let* ((remote-ref (browse-at-remote--remote-ref filename))
          (remote (car remote-ref))
-         (ref (cdr remote-ref))
+         (ref-type (caadr remote-ref))
+         (ref (cdadr remote-ref))
          (relname (f-relative filename (f-expand (vc-git-root filename))))
          (target-repo (browse-at-remote--get-url-from-remote remote))
          (remote-type (browse-at-remote--get-remote-type (plist-get target-repo :unresolved-host)))
@@ -498,7 +514,7 @@ Currently the same as for github."
     (unless url-formatter
       (error (format "Origin repo parsing failed: %s" repo-url)))
 
-    (funcall url-formatter repo-url ref relname
+    (funcall url-formatter repo-url ref-type ref relname
              (if start-line start-line)
              (if (and end-line (not (equal start-line end-line))) end-line))))
 
