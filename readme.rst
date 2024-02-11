@@ -55,7 +55,7 @@ Two solution available:
    - gitlab.com
    - github.com
    - Stash
-   - git.savannah.gnu.org
+   - Cgit
    - gist.github.com
    - Phabricator
    - git.sr.ht

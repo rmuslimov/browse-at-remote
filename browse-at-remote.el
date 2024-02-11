@@ -53,7 +53,7 @@
                                        (const :tag "GitLab" "gitlab")
                                        (const :tag "Bitbucket" "bitbucket")
                                        (const :tag "Stash/Bitbucket Server" "stash")
-                                       (const :tag "git.savannah.gnu.org" "gnu")
+                                       (const :tag "cgit" "gnu")
                                        (const :tag "Azure DevOps" "ado")
                                        (const :tag "Phabricator" "phabricator")
                                        (const :tag "gist.github.com" "gist")
