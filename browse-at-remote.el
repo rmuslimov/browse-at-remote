@@ -66,7 +66,8 @@
   '((:host "^github\\.com$"               :type "github")
     (:host "^bitbucket\\.org$"            :type "bitbucket")
     (:host "^gitlab\\.com$"               :type "gitlab")
-    (:host "^git\\.savannah\\.gnu\\.org$" :type "gnu")
+    (:host "^git\\.savannah\\.gnu\\.org$" :type "gnu" :actual-host "git.savannah.gnu.org/cgit")
+    (:host "^git\\.kernel\\.org$"         :type "gnu")
     (:host "^gist\\.github\\.com$"        :type "gist")
     (:host "^git\\.sr\\.ht$"              :type "sourcehut")
     (:host "^.*\\.visualstudio\\.com$"    :type "ado")
@@ -283,7 +284,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
    (domain (butlast parts))
    (project (car (last parts))))
     (string-join
-     (append domain (list "cgit" project)) "/")))
+     (append domain (list project)) "/")))
 
 (defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart lineend)
   "URL formatter for gnu."
