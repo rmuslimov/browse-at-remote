@@ -172,7 +172,7 @@ Changelog:
 
 0.15.0
 ******
-Added new feature allowing customize how hosts are resolved by @ilmotta.
+Added new feature allowing customize how hosts are resolved by `@ilmotta`_.
 
 
 0.14.0
@@ -240,5 +240,6 @@ TODO:
 .. _`@microamp`: https://github.com/microamp
 .. _`@FrostyX`: https://github.com/FrostyX
 .. _`@legendary-mich`: https://github.com/legendary-mich
+.. _`@ilmotta`: https://github.com/ilmotta
 .. _stash-remote: https://github.com/rmuslimov/browse-at-remote/pull/34/files
 .. _gnu-savannah-remote: https://github.com/rmuslimov/browse-at-remote/pull/46/files
