@@ -54,7 +54,7 @@ Two solution available:
    - bitbucket.com
    - gitlab.com
    - github.com
-   - Stash
+   - Stash (now called Bitbucket Server, use this if your url looks like `bitbucket.yourcompany.com`)
    - git.savannah.gnu.org
    - gist.github.com
    - Phabricator
