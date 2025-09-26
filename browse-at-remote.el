@@ -83,8 +83,8 @@ resolved to `:actual-host'."
 (defcustom browse-at-remote-preferred-remote-name
   "origin"
   "The preferred remote name
-Remotes ares sorted alphabetically, which might return the wrong remote pointing to a different url.
-When nil or not found use the first remote."
+Remotes ares sorted alphabetically, which might return the wrong remote pointing
+to a different url.  When nil or not found use the first remote."
   :type 'string
   :group 'browse-at-remote)
 
@@ -101,7 +101,8 @@ When nil, uses the commit hash. The contents will never change."
 
 (defcustom browse-at-remote-add-line-number-if-no-region-selected t
   "Always add line number even if region is not selected in buffer.
-When is option is t, bar-browse adds line number to URL even if region was not selected.
+When is option is t, bar-browse adds line number to URL even if region was not
+selected.
 
 By default is true."
   :type 'boolean
@@ -225,7 +226,8 @@ If HEAD is detached, return nil."
         (s-lines remotes)))))
 
 (defun browse-at-remote--get-preferred-remote ()
-  "Return either the preferred remote matching the name of browse-at-remote-preferred-remote-name.
+  "Return either the preferred remote matching the name of
+`browse-at-remote-preferred-remote-name'.
 If nil return the first remote in the list."
   (let ((remotes (browse-at-remote--get-remotes)))
     (if (and
@@ -272,7 +274,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
         host)))
 
 (defun browse-at-remote--get-formatter (formatter-type remote-type)
-  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
+  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and
+REMOTE-TYPE (github or bitbucket)"
   (let ((formatter (intern (format "browse-at-remote--format-%s-as-%s" formatter-type remote-type))))
     (if (fboundp formatter)
         formatter nil)))
@@ -285,7 +288,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
     (string-join
      (append domain (list "cgit" project)) "/")))
 
-(defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gnu (repo-url location filename &optional linestart _lineend)
   "URL formatter for gnu."
   (let ((repo-url (browse-at-remote-gnu-format-url repo-url)))
     (cond
@@ -334,7 +337,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
    (linestart (format "%s&line=%d&lineStartColumn=1&lineEndColumn=1" base-url linestart))
    (t base-url))))
 
-(defun browse-at-remote--format-commit-url-as-ado (repo-url commithash)
+(defun browse-at-remote--format-commit-url-as-ado (_repo-url _commithash)
   "Commit URL formatted for ado"
   ;; They does not seem to have anything like permalinks from github.
   (error "The ado version of the commit-url is not implemented"))
@@ -351,7 +354,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
 
-(defun browse-at-remote--format-region-url-as-gist (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gist (repo-url _location filename &optional linestart lineend)
   "URL formatted for gist."
   (concat
    (format "%s#file-%s" repo-url
@@ -370,7 +373,7 @@ related remote in `browse-at-remote-remote-type-regexps'."
     (format "%s/%s" repo-url commithash))))
 
 (defun browse-at-remote--fix-repo-url-stash (repo-url)
-  "Inserts 'projects' and 'repos' in #repo-url"
+  "Inserts `projects' and `repos' in REPO-URL"
   (let* ((reversed-url (reverse (split-string repo-url "/")))
          (project (car reversed-url))
          (repo (nth 1 reversed-url)))
@@ -433,7 +436,7 @@ Currently the same as for github."
 (defun browse-at-remote--format-region-url-as-pagure (repo-url location filename &optional linestart lineend)
   (let* ((repo-url (s-replace "/forks/" "/fork/" repo-url))
          (markup_ext (list ".rst" ".mk" ".md" ".markdown"))
-         (markup? (seq-contains (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
+         (markup? (seq-contains-p (mapcar (lambda (x) (string-suffix-p x filename)) markup_ext) t))
          (filename (cond (markup? (concat filename "?text=True"))
                          (t filename))))
     (cond
@@ -453,7 +456,7 @@ Currently the same as for github."
    "\\1\\2\\3"
    repo-url))
 
-(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart lineend)
+(defun browse-at-remote--format-region-url-as-gitiles (repo-url location filename &optional linestart _lineend)
   "Region URL formatted for Gitiles."
   (format "%s/+/%s/%s%s"
           (browse-at-remote--gerrit-url-cleanup repo-url)
@@ -502,6 +505,8 @@ Currently the same as for github."
              (if start-line start-line)
              (if (and end-line (not (equal start-line end-line))) end-line))))
 
+(declare-function dired-current-directory "dired")
+(declare-function log-view-current-entry "log-view")
 (defun browse-at-remote-get-url ()
   "Main method, returns URL to browse."
 
