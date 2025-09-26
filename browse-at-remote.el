@@ -111,6 +111,20 @@ By default is true."
   "List of hosts where the URL protocol should be http."
   :type '(repeat string))
 
+(defcustom browse-at-remote-github-markup-extensions
+  '(".markdown" ".mdown" ".mkdn" ".md"
+    ".textile"
+    ".rdoc"
+    "org"
+    ".creole"
+    ".mediawiki" ".wiki"
+    ".rst"
+    ".asciidoc" ".adoc" ".asc"
+    ".pod")
+  "List of file extensions where GitHub renders the content as HTML instead of raw.
+See https://github.com/github/markup#markups"
+  :type '(repeat string))
+
 (defun browse-at-remote--get-url-from-remote (remote-url)
   "Return a plist describing REMOTE-URL."
   ;; If the protocol isn't specified, git treats it as an SSH URL.
@@ -298,11 +312,14 @@ related remote in `browse-at-remote-remote-type-regexps'."
 
 (defun browse-at-remote--format-region-url-as-github (repo-url location filename &optional linestart lineend)
   "URL formatted for github."
-  (cond
-   ((and linestart lineend)
-    (format "%s/blob/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
-   (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
-   (t (format "%s/tree/%s/%s" repo-url location filename))))
+  (if linestart
+      (let* ((markup-p (-some? (lambda (ext) (s-ends-with-p ext filename))
+                               browse-at-remote-github-markup-extensions))
+             (fstr (if markup-p "%s/blob/%s/%s?plain=1#L%d" "%s/blob/%s/%s#L%d")))
+        (if lineend
+            (format (concat fstr "-L%d") repo-url location filename linestart lineend)
+          (format fstr repo-url location filename linestart)))
+    (format "%s/tree/%s/%s" repo-url location filename)))
 
 (defun browse-at-remote--format-commit-url-as-github (repo-url commithash)
   "Commit URL formatted for github"
