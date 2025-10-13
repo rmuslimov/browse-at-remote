@@ -180,7 +180,7 @@ Returns nil if no appropriate remote or ref can be found."
 If HEAD is detached, return nil."
   ;; Based on http://stackoverflow.com/a/1593487/509706
   (with-temp-buffer
-    (let ((exit-code (vc-git--call t "symbolic-ref" "HEAD")))
+    (let ((exit-code (vc-git-command t nil nil "symbolic-ref" "HEAD")))
       (when (zerop exit-code)
         (s-chop-prefix "refs/heads/" (s-trim (buffer-string)))))))
 
@@ -213,13 +213,13 @@ If HEAD is detached, return nil."
 (defun browse-at-remote--get-remote-url (remote)
   "Get URL of REMOTE from current repo."
   (with-temp-buffer
-    (vc-git--call t "ls-remote" "--get-url" remote)
+    (vc-git-command t nil nil "ls-remote" "--get-url" remote)
     (s-replace "\n" "" (buffer-string))))
 
 (defun browse-at-remote--get-remotes ()
   "Get a list of known remotes."
   (with-temp-buffer
-    (vc-git--call t "remote")
+    (vc-git-command t nil nil "remote")
     (let ((remotes (s-trim (buffer-string))))
       (unless (string= remotes "")
         (s-lines remotes)))))
@@ -245,7 +245,7 @@ If nil return the first remote in the list."
 
 (defun browse-at-remote--get-from-config (key)
   (with-temp-buffer
-    (vc-git--call t "config" "--get" key)
+    (vc-git-command t nil nil "config" "--get" key)
     (s-trim (buffer-string))))
 
 (defun browse-at-remote--get-remote-type (host)
