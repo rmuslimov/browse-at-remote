@@ -298,11 +298,19 @@ related remote in `browse-at-remote-remote-type-regexps'."
 
 (defun browse-at-remote--format-region-url-as-github (repo-url location filename &optional linestart lineend)
   "URL formatted for github."
-  (cond
-   ((and linestart lineend)
-    (format "%s/blob/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
-   (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
-   (t (format "%s/tree/%s/%s" repo-url location filename))))
+  ;; When github renders a file as markup the selected region is not visible. Therefore we ensure it
+  ;; is rendered in plaintext mode when a region is selected in a markup file
+  (if linestart
+      ;; list generated from https://github.com/github/markup#markups
+      (let* ((markup-extensions '(".md" ".mkdn" ".mdown" ".markdown" ".textile" ".rdoc" ".org" ".creole"
+                                  ".mediawiki" ".wiki" ".rst" ".asciidoc" ".adoc" ".asc" ".pod"))
+             (markup? (seq-some (-rpartial 'string-suffix-p filename) markup-extensions)))
+        (concat
+         (format "%s/blob/%s/%s" repo-url location filename)
+         (when markup? "?plain=1")
+         (format "#L%d" linestart)
+         (when lineend (format "-L%d" lineend))))
+    (format "%s/tree/%s/%s" repo-url location filename)))
 
 (defun browse-at-remote--format-commit-url-as-github (repo-url commithash)
   "Commit URL formatted for github"
