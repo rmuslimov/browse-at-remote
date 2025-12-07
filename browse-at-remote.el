@@ -4,7 +4,7 @@
 ;;
 ;; Author:     Rustem Muslimov <r.muslimov@gmail.com>
 ;; Version:    0.15.0
-;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure
+;; Keywords:   github, gitlab, bitbucket, gist, stash, phabricator, sourcehut, pagure, gitea
 ;; Homepage:   https://github.com/rmuslimov/browse-at-remote
 ;; Package-Requires: ((f "0.20.0") (s "1.9.0") (cl-lib "0.5"))
 
@@ -59,21 +59,23 @@
                                        (const :tag "gist.github.com" "gist")
                                        (const :tag "sourcehut" "sourcehut")
                                        (const :tag "pagure" "pagure")
-                                       (const :tag "Gitiles" "gitiles")))))
+                                       (const :tag "Gitiles" "gitiles")
+                                       (const :tag "Gitea" "gitea")))))
   "Customize types for remotes")
 
 (defcustom browse-at-remote-remote-type-regexps
   '((:host "^github\\.com$"               :type "github")
-    (:host "^bitbucket\\.org$"            :type "bitbucket")
+    (:host "^gitlab\\.gnome\\.org$"       :type "gitlab")
     (:host "^gitlab\\.com$"               :type "gitlab")
+    (:host "^bitbucket\\.org$"            :type "bitbucket")
     (:host "^git\\.savannah\\.gnu\\.org$" :type "gnu")
+    (:host "^.*\\.visualstudio\\.com$"    :type "ado")
     (:host "^gist\\.github\\.com$"        :type "gist")
     (:host "^git\\.sr\\.ht$"              :type "sourcehut")
-    (:host "^.*\\.visualstudio\\.com$"    :type "ado")
     (:host "^pagure\\.io$"                :type "pagure")
     (:host "^.*\\.fedoraproject\\.org$"   :type "pagure")
     (:host "^.*\\.googlesource\\.com$"    :type "gitiles")
-    (:host "^gitlab\\.gnome\\.org$"       :type "gitlab"))
+    (:host "^gitea\\.com$"                :type "gitea"))
   "Plist of host regular expressions to remote types.
 When property `:actual-host' is non-nil, the remote host will be
 resolved to `:actual-host'."
@@ -277,6 +279,40 @@ related remote in `browse-at-remote-remote-type-regexps'."
     (if (fboundp formatter)
         formatter nil)))
 
+  ;; Ensure URLs get built correctly even with dotted repo names
+  (advice-add
+   'browse-at-remote--get-default-remote
+   :around
+   (lambda (orig-fn)
+     (let ((remote (funcall orig-fn)))
+       (if (and remote
+                (string-match "^https://\\([^/]+\\)/\\([^/]+\\)/\\(.+\\)$" remote))
+           remote
+         ;; Fallback: don't break, just return whatever git gave us
+         remote))))
+
+;; --- Gitea support ---------------------------------------------------------
+
+  (defun browse-at-remote--format-region-url-as-gitea
+      (repo-url location filename &optional linestart lineend)
+    "Gitea region URLs"
+    (cond
+     ((and linestart lineend)
+      (format "%s/src/%s/%s#L%d-L%d"
+              repo-url location filename linestart lineend))
+     (linestart
+      (format "%s/src/%s/%s#L%d"
+              repo-url location filename linestart))
+     (t
+      (format "%s/src/%s/%s"
+              repo-url location filename))))
+
+  (defun browse-at-remote--format-commit-url-as-gitea (repo-url commithash)
+    "Gitea commit URLs"
+    (format "%s/commit/%s" repo-url commithash))
+
+;; --- GNU support -----------------------------------------------------------
+
 (defun browse-at-remote-gnu-format-url (repo-url)
   "Get a gnu formatted URL."
   (let* ((parts (split-string repo-url "/" t))
@@ -295,6 +331,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
 (defun browse-at-remote--format-commit-url-as-gnu (repo-url commithash)
   "Commit URL formatted for gnu"
   (format "%s.git/commit/?id=%s" (browse-at-remote-gnu-format-url repo-url) commithash))
+
+;; --- Github support --------------------------------------------------------
 
 (defun browse-at-remote--format-region-url-as-github (repo-url location filename &optional linestart lineend)
   "URL formatted for github."
@@ -318,6 +356,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
             (nth 5 s)
             (nth 6 s))))
 
+;; --- Ado support -----------------------------------------------------------
+
 (defun browse-at-remote--format-region-url-as-ado (repo-url location filename &optional linestart lineend)
   "URL formatted for ado"
   (let* (
@@ -339,6 +379,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
   ;; They does not seem to have anything like permalinks from github.
   (error "The ado version of the commit-url is not implemented"))
 
+;; --- Bitbucket support -----------------------------------------------------
+
 (defun browse-at-remote--format-region-url-as-bitbucket (repo-url location filename &optional linestart lineend)
   "URL formatted for bitbucket"
   (cond
@@ -350,6 +392,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
 (defun browse-at-remote--format-commit-url-as-bitbucket (repo-url commithash)
   "Commit URL formatted for bitbucket"
   (format "%s/commits/%s" repo-url commithash))
+
+;; --- Github gist support ---------------------------------------------------
 
 (defun browse-at-remote--format-region-url-as-gist (repo-url location filename &optional linestart lineend)
   "URL formatted for gist."
@@ -368,6 +412,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
     repo-url)
    (t
     (format "%s/%s" repo-url commithash))))
+
+;; --- Stash support ---------------------------------------------------------
 
 (defun browse-at-remote--fix-repo-url-stash (repo-url)
   "Inserts 'projects' and 'repos' in #repo-url"
@@ -391,6 +437,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
   "Commit URL formatted for stash"
   (format "%s/commits/%s" (browse-at-remote--fix-repo-url-stash repo-url) commithash))
 
+;; --- Phabricator support ---------------------------------------------------
+
 (defun browse-at-remote--format-region-url-as-phabricator (repo-url location filename &optional linestart lineend)
   "URL formatted for Phabricator"
     (let* ((lines (cond
@@ -404,6 +452,8 @@ related remote in `browse-at-remote-remote-type-regexps'."
   (message repo-url)
   (format "%s/%s%s" (replace-regexp-in-string "\/source/.*" "" repo-url)  (read-string "Please input the callsign for this repository:") commithash))
 
+;; --- Gitlab support --------------------------------------------------------
+
 (defun browse-at-remote--format-region-url-as-gitlab (repo-url location filename &optional linestart lineend)
   "URL formatted for gitlab.
 The only difference from github is format of region: L1-2 instead of L1-L2"
@@ -413,6 +463,13 @@ The only difference from github is format of region: L1-2 instead of L1-L2"
    (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
+(defun browse-at-remote--format-commit-url-as-gitlab (repo-url commithash)
+  "Commit URL formatted for gitlab.
+Currently the same as for github."
+  (format "%s/commit/%s" repo-url commithash))
+
+;; --- Sourcehut support -----------------------------------------------------
+
 (defun browse-at-remote--format-region-url-as-sourcehut (repo-url location filename &optional linestart lineend)
   "URL formatted for sourcehut."
   (cond
@@ -421,14 +478,11 @@ The only difference from github is format of region: L1-2 instead of L1-L2"
    (linestart (format "%s/tree/%s/%s#L%d" repo-url location filename linestart))
    (t (format "%s/tree/%s/%s" repo-url location filename))))
 
-(defun browse-at-remote--format-commit-url-as-gitlab (repo-url commithash)
-  "Commit URL formatted for gitlab.
-Currently the same as for github."
-  (format "%s/commit/%s" repo-url commithash))
-
 (defun browse-at-remote--format-commit-url-as-sourcehut (repo-url commithash)
   "Commit URL formatted for sourcehut."
   (format "%s/commit/%s" repo-url commithash))
+
+;; --- Pagure support --------------------------------------------------------
 
 (defun browse-at-remote--format-region-url-as-pagure (repo-url location filename &optional linestart lineend)
   (let* ((repo-url (s-replace "/forks/" "/fork/" repo-url))
@@ -445,6 +499,8 @@ Currently the same as for github."
 (defun browse-at-remote--format-commit-url-as-pagure (repo-url commithash)
   "Commit URL formatted for github"
   (format "%s/c/%s" repo-url commithash))
+
+;; --- Gitiles support -------------------------------------------------------
 
 (defun browse-at-remote--gerrit-url-cleanup (repo-url)
   "Remove -review from REPO-URL, so we end up at gitiles instead of gerrit"
