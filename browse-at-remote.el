@@ -1,4 +1,4 @@
-;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phab/sourcehut page from Emacs -*- lexical-binding:t -*-
+;;; browse-at-remote.el --- Open github/gitlab/bitbucket/stash/gist/phab/sourcehut/gitea page from Emacs -*- lexical-binding:t -*-
 
 ;; Copyright © 2015-2023
 ;;
