@@ -59,7 +59,8 @@
                                        (const :tag "gist.github.com" "gist")
                                        (const :tag "sourcehut" "sourcehut")
                                        (const :tag "pagure" "pagure")
-                                       (const :tag "Gitiles" "gitiles")))))
+                                       (const :tag "Gitiles" "gitiles")
+                                       (const :tag "Gitea" "gitea")))))
   "Customize types for remotes")
 
 (defcustom browse-at-remote-remote-type-regexps
@@ -470,6 +471,18 @@ Currently the same as for github."
   (format "%s/+/%s^!/"
           (browse-at-remote--gerrit-url-cleanup repo-url)
           commithash))
+
+(defun browse-at-remote--format-region-url-as-gitea (repo-url location filename &optional linestart lineend)
+  "URL formatted for gitea."
+  (cond
+   ((and linestart lineend)
+    (format "%s/src/commit/%s/%s#L%d-L%d" repo-url location filename linestart lineend))
+   (linestart (format "%s/src/commit/%s/%s#L%d" repo-url location filename linestart))
+   (t (format "%s/src/commit/%s/%s" repo-url location filename))))
+
+(defun browse-at-remote--format-commit-url-as-gitea (repo-url commithash)
+  "Commit URL formatted for gitea."
+  (format "%s/src/commit/%s" repo-url commithash))
 
 (defun browse-at-remote--commit-url (commithash)
   "Return the URL to browse COMMITHASH."
