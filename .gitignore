@@ -2,3 +2,4 @@
 /.cask
 *.elc
 *~
+*-autoloads.el
